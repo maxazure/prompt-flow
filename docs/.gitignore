@@ -32,3 +32,5 @@ ehthumbs.db
 
 # Local configuration
 config.local.*
+
+CONVERSATION_CONTEXT.md
