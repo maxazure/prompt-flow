@@ -1,11 +1,27 @@
 # PromptFlow - AI 提示词管理平台
 
-![PromptFlow](https://img.shields.io/badge/PromptFlow-v1.0.0-blue)
-![Node.js](https://img.shields.io/badge/Node.js-v18+-green)
-![React](https://img.shields.io/badge/React-19.x-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
-![Tests](https://img.shields.io/badge/Tests-95%20passing-green)
-![Coverage](https://img.shields.io/badge/API%20Coverage-100%25-brightgreen)
+<div align="center">
+
+![PromptFlow](https://img.shields.io/badge/PromptFlow-v1.0.0-blue?style=for-the-badge&logo=openai&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge&logo=opensourceinitiative&logoColor=white)
+![Stars](https://img.shields.io/github/stars/maxazure/prompt-flow?style=for-the-badge&logo=github&logoColor=white)
+![Forks](https://img.shields.io/github/forks/maxazure/prompt-flow?style=for-the-badge&logo=github&logoColor=white)
+
+![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19.x-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+
+![Tests](https://img.shields.io/badge/Tests-95%20passing-brightgreen?style=for-the-badge&logo=jest&logoColor=white)
+![Coverage](https://img.shields.io/badge/API%20Coverage-100%25-brightgreen?style=for-the-badge&logo=codecov&logoColor=white)
+![Security](https://img.shields.io/badge/Security-JWT%20Auth-orange?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![AI](https://img.shields.io/badge/AI%20Powered-OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
+
+[![Deploy](https://img.shields.io/badge/Deploy-Ready-success?style=for-the-badge&logo=vercel&logoColor=white)](https://github.com/maxazure/prompt-flow)
+[![Issues](https://img.shields.io/github/issues/maxazure/prompt-flow?style=for-the-badge&logo=github&logoColor=white)](https://github.com/maxazure/prompt-flow/issues)
+[![PRs](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=for-the-badge&logo=github&logoColor=white)](https://github.com/maxazure/prompt-flow/pulls)
+
+</div>
 
 PromptFlow 是一个现代化的 AI 提示词管理平台，专为开发者和内容创作者设计，提供完整的提示词管理、版本控制、团队协作和 AI 优化功能。项目已完成 Phase 3.5，实现了 100% API 覆盖率和生产就绪状态。
 
@@ -346,18 +362,32 @@ Content-Type: application/json
 
 ## 🌟 项目亮点
 
-- **✅ 生产就绪**: 通过了完整的系统测试，可直接部署
-- **🧪 高测试覆盖**: 95+ 测试用例，100% API 覆盖率
-- **🤖 AI 驱动**: 集成 OpenAI API 提供智能优化建议
-- **👥 团队协作**: 完整的团队管理和权限控制系统
-- **📚 文档完善**: 详细的技术文档和 API 参考
-- **🔒 安全可靠**: JWT 认证和完善的权限控制
+<div align="center">
+
+![Production Ready](https://img.shields.io/badge/🚀_生产就绪-通过完整系统测试-success?style=for-the-badge&labelColor=2ea043)
+![High Coverage](https://img.shields.io/badge/🧪_测试覆盖-95+_测试用例_100%25_API-brightgreen?style=for-the-badge&labelColor=1f883d)
+
+![AI Powered](https://img.shields.io/badge/🤖_AI_驱动-OpenAI_智能优化-blueviolet?style=for-the-badge&labelColor=8b5cf6)
+![Team Collaboration](https://img.shields.io/badge/👥_团队协作-完整权限控制-blue?style=for-the-badge&labelColor=0969da)
+
+![Documentation](https://img.shields.io/badge/📚_文档完善-详细技术文档-orange?style=for-the-badge&labelColor=fd7e14)
+![Security](https://img.shields.io/badge/🔒_安全可靠-JWT_认证-red?style=for-the-badge&labelColor=d1242f)
+
+</div>
 
 ## 📞 联系方式
 
-- 项目地址: [GitHub Repository](https://github.com/maxazure/prompt-flow)
-- 问题反馈: [Issues](https://github.com/maxazure/prompt-flow/issues)
-- 技术文档: [docs/](docs/) 目录
+<div align="center">
+
+[![GitHub Repo](https://img.shields.io/badge/📦_项目地址-GitHub_Repository-black?style=for-the-badge&logo=github&logoColor=white)](https://github.com/maxazure/prompt-flow)
+[![Issues](https://img.shields.io/badge/🐛_问题反馈-GitHub_Issues-red?style=for-the-badge&logo=github&logoColor=white)](https://github.com/maxazure/prompt-flow/issues)
+[![Documentation](https://img.shields.io/badge/📚_技术文档-docs/_目录-blue?style=for-the-badge&logo=gitbook&logoColor=white)](docs/)
+
+[![Star](https://img.shields.io/badge/⭐_给个星星-Star_This_Repo-yellow?style=for-the-badge&logo=github&logoColor=black)](https://github.com/maxazure/prompt-flow)
+[![Fork](https://img.shields.io/badge/🍴_Fork_项目-Contribute_Now-green?style=for-the-badge&logo=github&logoColor=white)](https://github.com/maxazure/prompt-flow/fork)
+[![Watch](https://img.shields.io/badge/👀_关注更新-Watch_Repo-orange?style=for-the-badge&logo=github&logoColor=white)](https://github.com/maxazure/prompt-flow/subscription)
+
+</div>
 
 ---
 
