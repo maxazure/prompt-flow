@@ -1,0 +1,123 @@
+# PromptFlow Frontend - .gitignore
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+
+# Vite cache
+.vite/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+dev-server.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Vitest coverage
+coverage/
+vitest-coverage/
+
+# Test results
+test-results/
+playwright-report/
+test-results-*/
+
+# Storybook build outputs
+.out
+.storybook-out
+storybook-static/
+
+# Temporary folders
+tmp/
+temp/
+
+# Parcel cache
+.cache
+.parcel-cache
+
+# Tailwind CSS output
+src/**/*.css.map
+
+# Static assets that shouldn't be committed
+public/assets/temp/
+public/uploads/
+
+# Build tools cache
+.turbo/
+
+# Webpack bundle analyzer
+webpack-bundle-analyzer-report.html
+
+# Local development files
+*.local
+*.local.*
+
+# Hot reload files
+.hot-update.*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+
+# Local configuration
+config.local.js
+config.local.json
+vite.config.local.ts

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PromptFlow Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>PromptFlow App Test</h1>
+    <div id="status"></div>
+    
+    <script>
+        async function testApp() {
+            const status = document.getElementById('status');
+            
+            try {
+                // Test frontend
+                const frontendResponse = await fetch('http://localhost:5173');
+                if (frontendResponse.ok) {
+                    status.innerHTML += '<p class="success">✓ Frontend server is running</p>';
+                } else {
+                    status.innerHTML += '<p class="error">✗ Frontend server error</p>';
+                }
+                
+                // Test backend
+                const backendResponse = await fetch('http://localhost:3001/api/prompts');
+                if (backendResponse.ok) {
+                    const data = await backendResponse.json();
+                    status.innerHTML += '<p class="success">✓ Backend API is responding</p>';
+                    status.innerHTML += '<p>Prompts found: ' + (data.prompts ? data.prompts.length : 0) + '</p>';
+                } else {
+                    status.innerHTML += '<p class="error">✗ Backend API error</p>';
+                }
+                
+            } catch (error) {
+                status.innerHTML += '<p class="error">✗ Connection error: ' + error.message + '</p>';
+            }
+        }
+        
+        testApp();
+    </script>
+</body>
+</html>
