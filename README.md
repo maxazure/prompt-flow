@@ -125,7 +125,7 @@ prompt-flow/
 
 1. **克隆项目**
 ```bash
-git clone https://github.com/your-username/prompt-flow.git
+git clone https://github.com/maxazure/prompt-flow.git
 cd prompt-flow
 ```
 
@@ -319,7 +319,7 @@ Content-Type: application/json
 
 ## 🤝 贡献指南
 
-1. Fork 项目
+1. Fork 项目 [maxazure/prompt-flow](https://github.com/maxazure/prompt-flow)
 2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
 3. 提交更改 (`git commit -m 'Add amazing feature'`)
 4. 推送到分支 (`git push origin feature/amazing-feature`)
@@ -355,8 +355,8 @@ Content-Type: application/json
 
 ## 📞 联系方式
 
-- 项目地址: [GitHub Repository](https://github.com/your-username/prompt-flow)
-- 问题反馈: [Issues](https://github.com/your-username/prompt-flow/issues)
+- 项目地址: [GitHub Repository](https://github.com/maxazure/prompt-flow)
+- 问题反馈: [Issues](https://github.com/maxazure/prompt-flow/issues)
 - 技术文档: [docs/](docs/) 目录
 
 ---
