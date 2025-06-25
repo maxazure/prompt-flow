@@ -223,3 +223,14 @@ export interface CategorizeRequest {
   content: string;
 }
 
+export interface ValidateRequest {
+  content: string;
+}
+
+export interface PromptValidation {
+  isValid: boolean;
+  score: number;
+  issues: string[];
+  suggestions: string[];
+}
+

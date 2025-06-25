@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { aiAPI } from '../services/api';
-import type { PromptAnalysis, SimilarPrompt } from '../types';
+import type { PromptAnalysis, SimilarPrompt, PromptValidation } from '../types';
 
 interface PromptOptimizerProps {
   content: string;
@@ -14,10 +14,11 @@ const PromptOptimizer: React.FC<PromptOptimizerProps> = ({
   className = '',
 }) => {
   const [analysis, setAnalysis] = useState<PromptAnalysis | null>(null);
+  const [validation, setValidation] = useState<PromptValidation | null>(null);
   const [optimizedContent, setOptimizedContent] = useState<string>('');
   const [similarPrompts, setSimilarPrompts] = useState<SimilarPrompt[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'analysis' | 'suggestions' | 'similar' | 'optimized'>('analysis');
+  const [activeTab, setActiveTab] = useState<'analysis' | 'validation' | 'suggestions' | 'similar' | 'optimized'>('analysis');
   const [selectedSuggestions, setSelectedSuggestions] = useState<Set<number>>(new Set());
 
   const analyzePrompt = async () => {
@@ -25,12 +26,14 @@ const PromptOptimizer: React.FC<PromptOptimizerProps> = ({
 
     setLoading(true);
     try {
-      const [analysisResult, similarResult] = await Promise.all([
+      const [analysisResult, validationResult, similarResult] = await Promise.all([
         aiAPI.analyzePrompt({ content }),
+        aiAPI.validatePrompt({ content }),
         aiAPI.getSimilarPrompts({ content, limit: 5 }),
       ]);
 
       setAnalysis(analysisResult.data);
+      setValidation(validationResult.data);
       setSimilarPrompts(similarResult.data.similar);
     } catch (error) {
       console.error('Analysis failed:', error);
@@ -119,6 +122,7 @@ const PromptOptimizer: React.FC<PromptOptimizerProps> = ({
               <nav className="-mb-px flex space-x-8">
                 {[
                   { id: 'analysis', label: '分析结果' },
+                  { id: 'validation', label: '有效性验证' },
                   { id: 'suggestions', label: '优化建议' },
                   { id: 'similar', label: '相似提示词' },
                   { id: 'optimized', label: '优化结果' },
@@ -133,6 +137,15 @@ const PromptOptimizer: React.FC<PromptOptimizerProps> = ({
                     }`}
                   >
                     {tab.label}
+                    {tab.id === 'validation' && validation && (
+                      <span className={`ml-2 text-xs rounded-full px-2 py-0.5 ${
+                        validation.isValid 
+                          ? 'bg-green-100 text-green-600' 
+                          : 'bg-red-100 text-red-600'
+                      }`}>
+                        {validation.isValid ? '✓' : '✗'}
+                      </span>
+                    )}
                     {tab.id === 'suggestions' && analysis.suggestions.length > 0 && (
                       <span className="ml-2 bg-red-100 text-red-600 text-xs rounded-full px-2 py-0.5">
                         {analysis.suggestions.length}
@@ -206,6 +219,88 @@ const PromptOptimizer: React.FC<PromptOptimizerProps> = ({
                       )}
                     </div>
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'validation' && (
+                <div className="space-y-4">
+                  {validation ? (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="text-center p-4 bg-gray-50 rounded-lg">
+                          <div className={`text-2xl font-bold ${
+                            validation.isValid ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {validation.isValid ? '✓ 有效' : '✗ 无效'}
+                          </div>
+                          <div className="text-sm text-gray-600">有效性状态</div>
+                        </div>
+                        <div className="text-center p-4 bg-gray-50 rounded-lg">
+                          <div className={`text-2xl font-bold ${getScoreColor(validation.score)}`}>
+                            {validation.score}
+                          </div>
+                          <div className="text-sm text-gray-600">有效性评分</div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <h4 className="font-medium text-red-600 mb-2">发现的问题</h4>
+                          {validation.issues.length > 0 ? (
+                            <ul className="space-y-1">
+                              {validation.issues.map((issue, index) => (
+                                <li key={index} className="text-sm text-gray-700 flex items-start">
+                                  <span className="text-red-500 mr-2">⚠</span>
+                                  {issue}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-sm text-gray-500">未发现问题</p>
+                          )}
+                        </div>
+
+                        <div>
+                          <h4 className="font-medium text-blue-600 mb-2">改进建议</h4>
+                          {validation.suggestions.length > 0 ? (
+                            <ul className="space-y-1">
+                              {validation.suggestions.map((suggestion, index) => (
+                                <li key={index} className="text-sm text-gray-700 flex items-start">
+                                  <span className="text-blue-500 mr-2">💡</span>
+                                  {suggestion}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-sm text-gray-500">暂无建议</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className={`p-4 rounded-lg ${
+                        validation.isValid 
+                          ? 'bg-green-50 border border-green-200' 
+                          : 'bg-red-50 border border-red-200'
+                      }`}>
+                        <div className="flex items-center space-x-2">
+                          <span className={`text-sm font-medium ${
+                            validation.isValid ? 'text-green-800' : 'text-red-800'
+                          }`}>
+                            验证结论:
+                          </span>
+                          <span className={`text-sm ${
+                            validation.isValid ? 'text-green-700' : 'text-red-700'
+                          }`}>
+                            {validation.isValid 
+                              ? '该提示词结构合理，可以有效使用' 
+                              : '该提示词存在问题，建议改进后使用'}
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-gray-500">验证数据未加载</p>
+                  )}
                 </div>
               )}
 

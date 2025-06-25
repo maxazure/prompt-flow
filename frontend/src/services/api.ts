@@ -24,6 +24,8 @@ import type {
   OptimizeRequest,
   SimilarPromptsRequest,
   CategorizeRequest,
+  ValidateRequest,
+  PromptValidation,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -235,6 +237,14 @@ export const aiAPI = {
     data: { categories: string[]; suggested_category: string } 
   }> {
     const response = await api.post('/ai/categorize', data);
+    return response.data;
+  },
+
+  async validatePrompt(data: ValidateRequest): Promise<{ 
+    success: boolean; 
+    data: PromptValidation 
+  }> {
+    const response = await api.post('/ai/validate', data);
     return response.data;
   },
 
