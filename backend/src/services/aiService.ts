@@ -131,32 +131,40 @@ class AIService {
   private async getAIAnalysis(content: string): Promise<Partial<PromptAnalysis>> {
     if (!this.openai) return {};
 
-    const prompt = `
-请分析以下AI提示词的质量，并提供改进建议：
+    const prompt = `你是一个专业的AI提示词分析专家。请分析以下提示词的质量并提供详细的改进建议。
 
-"""
+待分析的提示词：
+'''
 ${content}
-"""
+'''
 
-请从以下方面进行分析：
-1. 清晰度 - 表达是否清楚明确
-2. 具体性 - 是否包含足够的具体信息
-3. 结构性 - 逻辑结构是否合理
-4. 效率性 - 是否简洁高效
-5. 示例性 - 是否需要更多示例
+请从以下维度进行专业分析：
+1. **清晰度** - 指令是否明确易懂
+2. **具体性** - 是否包含足够的具体要求和细节
+3. **结构性** - 逻辑层次是否清晰合理
+4. **完整性** - 是否包含必要的上下文和约束条件
+5. **有效性** - 是否能够产生期望的输出结果
 
-请以JSON格式返回分析结果，包含：
-- score (0-100的整数评分)
-- strengths (优点数组)
-- weaknesses (缺点数组)
-- suggestions (改进建议数组，每个建议包含 type, title, description, suggestedText, confidence, impact)
-
-请用中文回答。
-`;
+请严格按照以下JSON格式返回分析结果（只返回JSON，不要其他文字）：
+{
+  "score": 评分(0-100整数),
+  "strengths": ["优点1", "优点2"],
+  "weaknesses": ["缺点1", "缺点2"],
+  "suggestions": [
+    {
+      "type": "clarity|specificity|structure|efficiency|examples",
+      "title": "建议标题",
+      "description": "详细描述",
+      "suggestedText": "具体改进建议",
+      "confidence": 0.8,
+      "impact": "low|medium|high"
+    }
+  ]
+}`;
 
     try {
       const completion = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 1000,
         temperature: 0.3,
@@ -215,22 +223,26 @@ ${content}
     }
 
     try {
-      const prompt = `
-请根据以下改进建议优化这个AI提示词：
+      const prompt = `你是一个专业的AI提示词优化专家。请根据提供的改进建议优化以下提示词。
 
 原始提示词：
-"""
+'''
 ${originalContent}
-"""
+'''
 
-改进建议：
-${suggestions.map(s => `- ${s.title}: ${s.description}`).join('\n')}
+优化建议：
+${suggestions.map(s => `• ${s.title}: ${s.description}`).join('\n')}
 
-请返回优化后的提示词，保持原意的同时应用这些改进建议。只返回优化后的内容，不要添加其他说明。
-`;
+请返回优化后的提示词，要求：
+1. 保持原始意图和核心要求不变
+2. 应用所有可行的改进建议
+3. 确保语言更加清晰、具体、有条理
+4. 只返回优化后的提示词内容，不要添加任何解释
+
+优化后的提示词：`;
 
       const completion = await this.openai!.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 800,
         temperature: 0.5,
@@ -277,7 +289,50 @@ ${suggestions.map(s => `- ${s.title}: ${s.description}`).join('\n')}
   }
 
   async categorizePrompt(content: string): Promise<string[]> {
-    // Basic keyword-based categorization
+    if (!this.isOpenAIEnabled()) {
+      return this.getBasicCategories(content);
+    }
+
+    try {
+      const prompt = `请为以下AI提示词分类，从下列类别中选择最合适的1-3个类别：
+
+提示词内容：
+'''
+${content}
+'''
+
+可选类别：
+- web-development (网页开发)
+- design (设计相关)
+- programming (编程开发)
+- documentation (文档写作)
+- testing (测试调试)
+- content-creation (内容创作)
+- data-analysis (数据分析)
+- general (通用)
+
+请以JSON数组格式返回分类结果，例如：["web-development", "design"]`;
+
+      const completion = await this.openai!.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 100,
+        temperature: 0.1,
+      });
+
+      const response = completion.choices[0]?.message?.content;
+      if (response) {
+        const categories = JSON.parse(response.trim());
+        return Array.isArray(categories) ? categories : ['general'];
+      }
+    } catch (error) {
+      console.error('AI categorization failed:', error);
+    }
+
+    return this.getBasicCategories(content);
+  }
+
+  private getBasicCategories(content: string): string[] {
     const categories: string[] = [];
     const lowerContent = content.toLowerCase();
 
@@ -298,6 +353,73 @@ ${suggestions.map(s => `- ${s.title}: ${s.description}`).join('\n')}
     }
 
     return categories.length > 0 ? categories : ['general'];
+  }
+
+  async validatePrompt(content: string): Promise<{
+    isValid: boolean;
+    score: number;
+    issues: string[];
+    suggestions: string[];
+  }> {
+    if (!this.isOpenAIEnabled()) {
+      return {
+        isValid: content.length > 10,
+        score: this.calculateBasicScore(content),
+        issues: content.length <= 10 ? ['提示词过短'] : [],
+        suggestions: ['建议添加更多具体要求']
+      };
+    }
+
+    try {
+      const prompt = `你是一个AI提示词验证专家。请评估以下提示词的有效性：
+
+提示词：
+'''
+${content}
+'''
+
+评估标准：
+1. 是否清晰明确
+2. 是否包含足够的信息
+3. 是否可以产生有用的输出
+4. 是否存在歧义或矛盾
+
+请以JSON格式返回评估结果：
+{
+  "isValid": true/false,
+  "score": 0-100,
+  "issues": ["问题1", "问题2"],
+  "suggestions": ["建议1", "建议2"]
+}`;
+
+      const completion = await this.openai!.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 500,
+        temperature: 0.2,
+      });
+
+      const response = completion.choices[0]?.message?.content;
+      if (response) {
+        const result = JSON.parse(response.trim());
+        return {
+          isValid: result.isValid || false,
+          score: result.score || 0,
+          issues: result.issues || [],
+          suggestions: result.suggestions || []
+        };
+      }
+    } catch (error) {
+      console.error('Prompt validation failed:', error);
+    }
+
+    // Fallback to basic validation
+    return {
+      isValid: content.length > 10,
+      score: this.calculateBasicScore(content),
+      issues: content.length <= 10 ? ['提示词过短'] : [],
+      suggestions: ['建议添加更多具体要求']
+    };
   }
 }
 

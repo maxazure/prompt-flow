@@ -200,6 +200,37 @@ router.get('/prompts/:id/analyze', authenticateToken, async (req: AuthenticatedR
   }
 });
 
+// Validate prompt effectiveness
+router.post('/validate', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  try {
+    const { content } = req.body;
+
+    if (!content || typeof content !== 'string') {
+      return res.status(400).json({
+        error: 'Content is required and must be a string',
+      });
+    }
+
+    if (content.length > 5000) {
+      return res.status(400).json({
+        error: 'Content too long (max 5000 characters)',
+      });
+    }
+
+    const validation = await aiService.validatePrompt(content);
+
+    res.json({
+      success: true,
+      data: validation,
+    });
+  } catch (error) {
+    console.error('Validation error:', error);
+    res.status(500).json({
+      error: 'Failed to validate prompt',
+    });
+  }
+});
+
 // Get usage statistics and insights
 router.get('/insights', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {

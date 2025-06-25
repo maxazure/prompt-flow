@@ -42,6 +42,7 @@
 | **评论** | `/comments/:id/resolve` | PUT | ✅ | 标记评论已解决 |
 | **AI优化** | `/ai/analyze` | POST | ✅ | 分析提示词质量 |
 | **AI优化** | `/ai/optimize` | POST | ✅ | 生成优化版本 |
+| **AI优化** | `/ai/validate` | POST | ✅ | 验证提示词有效性 |
 | **AI优化** | `/ai/similar` | POST | ✅ | 获取相似提示词 |
 | **AI优化** | `/ai/categorize` | POST | ✅ | 自动分类提示词 |
 | **AI优化** | `/ai/prompts/:id/analyze` | GET | ✅ | 分析指定提示词 |
@@ -888,6 +889,45 @@ Authorization: Bearer <token>
       "readabilityScore": 92
     }
   }
+}
+```
+
+### ✅ 验证提示词有效性
+使用 AI 评估提示词的有效性和可用性
+
+```http
+POST /ai/validate
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**请求体**:
+```json
+{
+  "content": "请创建一个响应式网页设计，包含导航栏、主要内容区域和页脚。使用现代CSS技术，确保在移动设备上良好显示。"
+}
+```
+
+**响应 (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "isValid": true,
+    "score": 85,
+    "issues": [],
+    "suggestions": [
+      "可以添加更具体的技术要求",
+      "建议指定浏览器兼容性需求"
+    ]
+  }
+}
+```
+
+**错误响应 (400 Bad Request)**:
+```json
+{
+  "error": "Content is required and must be a string"
 }
 ```
 

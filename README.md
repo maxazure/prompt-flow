@@ -164,7 +164,13 @@ npm install
 NODE_ENV=development
 PORT=3001
 JWT_SECRET=your_super_secret_jwt_key
+OPENAI_API_KEY=your_openai_api_key_here
 ```
+
+**OpenAI API 配置 (可选)**：
+- 如果不配置 `OPENAI_API_KEY`，AI 功能将使用基础分析模式
+- 配置后可使用 GPT-4o-mini 模型进行高质量的提示词分析和优化
+- 在 [OpenAI API Keys](https://platform.openai.com/api-keys) 获取你的 API 密钥
 
 创建 `frontend/.env` 文件：
 ```env
@@ -206,7 +212,7 @@ npm test
 ### 测试覆盖率
 项目采用 TDD（测试驱动开发）方式，已完成全面系统测试：
 - **后端测试**: 95/95 通过 (100%)
-- **API 端点**: 31+ 个端点全覆盖
+- **API 端点**: 32+ 个端点全覆盖
 - **前端测试**: 27/29 通过 (93.1%)
 - **安全测试**: JWT 认证和权限控制
 - **性能测试**: 响应时间 < 15ms
@@ -218,7 +224,7 @@ npm test
 ## 📖 API 文档
 
 ### 🔗 完整 API 参考
-项目实现了 **31+ 个 API 端点**，完整文档请查看：
+项目实现了 **32+ 个 API 端点**，完整文档请查看：
 - [API_REFERENCE.md](docs/API_REFERENCE.md) - 完整的 API 参考文档
 - [系统测试计划](docs/SYSTEM_TESTING_PLAN.md) - 全面的系统测试文档
 
@@ -323,7 +329,7 @@ Content-Type: application/json
 ### 📊 项目状态
 - **当前版本**: v1.0.0
 - **开发状态**: 🟢 生产就绪
-- **API 覆盖率**: 100% (31+ 端点)
+- **API 覆盖率**: 100% (32+ 端点)
 - **测试通过率**: 95/95 (100%)
 - **部署状态**: 可直接部署到生产环境
 
