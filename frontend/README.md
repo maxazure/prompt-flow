@@ -49,6 +49,25 @@ VITE_APP_ENV=production
 | `VITE_ENABLE_ANALYTICS` | 是否启用分析 | `false` | 否 |
 | `VITE_GA_TRACKING_ID` | Google Analytics ID | - | 否 |
 
+### 环境变量值的格式说明
+
+**包含空格的应用名称：**
+```env
+# 方法 1：不加引号（推荐）
+VITE_APP_NAME=My Awesome App
+
+# 方法 2：使用双引号
+VITE_APP_NAME="My Awesome App"
+
+# 方法 3：使用单引号
+VITE_APP_NAME='My Awesome App'
+```
+
+**特殊字符处理：**
+- 包含空格：直接写入或使用引号包围
+- 包含引号：使用相反类型的引号包围
+- 包含特殊符号：建议使用引号包围
+
 ## 开发
 
 ```bash
