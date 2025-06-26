@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { promptsAPI } from '../services/api';
 import type { Prompt } from '../types';
+import usePageTitle from '../hooks/usePageTitle';
 
 interface DashboardStats {
   totalPrompts: number;
@@ -13,6 +14,8 @@ interface DashboardStats {
 }
 
 const Dashboard: React.FC = () => {
+  usePageTitle('Dashboard');
+  
   const { user } = useAuth();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [stats, setStats] = useState<DashboardStats>({

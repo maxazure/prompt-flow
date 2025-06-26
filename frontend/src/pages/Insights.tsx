@@ -1,8 +1,11 @@
 import React from 'react';
 import InsightsDashboard from '../components/InsightsDashboard';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 
 const Insights: React.FC = () => {
+  usePageTitle('Insights');
+  
   const { user } = useAuth();
 
   if (!user) {

@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const APP_NAME = import.meta.env.VITE_APP_NAME || 'PromptFlow';
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -22,7 +24,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link to="/" className="text-xl font-bold text-gray-900">
-                PromptFlow
+                {APP_NAME}
               </Link>
               <div className="ml-10 flex items-baseline space-x-4">
                 <Link

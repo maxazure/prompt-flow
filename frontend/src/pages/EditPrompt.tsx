@@ -4,8 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import PromptEditor from '../components/PromptEditor';
 import { promptsAPI, versionsAPI } from '../services/api';
 import type { CreatePromptRequest, Prompt } from '../types';
+import usePageTitle from '../hooks/usePageTitle';
 
 const EditPrompt: React.FC = () => {
+  usePageTitle('Edit Prompt');
+  
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated, user } = useAuth();

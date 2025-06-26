@@ -4,8 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import PromptEditor from '../components/PromptEditor';
 import { promptsAPI } from '../services/api';
 import type { CreatePromptRequest } from '../types';
+import usePageTitle from '../hooks/usePageTitle';
 
 const CreatePrompt: React.FC = () => {
+  usePageTitle('Create Prompt');
+  
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);

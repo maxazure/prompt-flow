@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 
 interface TemplatePreset {
   id: string;
@@ -163,6 +164,8 @@ Please create compelling, informative content that provides real value to reader
 ];
 
 const Templates: React.FC = () => {
+  usePageTitle('Templates');
+  
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');

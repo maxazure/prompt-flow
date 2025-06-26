@@ -7,8 +7,11 @@ import VersionDiff from '../components/VersionDiff';
 import Comments from '../components/Comments';
 import PromptOptimizer from '../components/PromptOptimizer';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 
 const PromptDetail: React.FC = () => {
+  usePageTitle('Prompt Details');
+  
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();

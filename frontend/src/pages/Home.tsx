@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { promptsAPI } from '../services/api';
 import type { Prompt } from '../types';
+import usePageTitle from '../hooks/usePageTitle';
 
 const Home: React.FC = () => {
+  usePageTitle('Home');
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

@@ -4,8 +4,11 @@ import { teamsAPI } from '../services/api';
 import { TeamRole } from '../types';
 import type { Team, CreateTeamRequest, InviteMemberRequest } from '../types';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 
 const Teams: React.FC = () => {
+  usePageTitle('Teams');
+  
   const { user } = useAuth();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
