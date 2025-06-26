@@ -9,7 +9,8 @@ interface PromptAttributes {
   description?: string;
   version: number;
   isTemplate: boolean;
-  category?: string;
+  category?: string; // 保留用于向后兼容
+  categoryId?: number; // 新的分类关联字段
   tags?: string[];
   userId: number;
   parentId?: number;
@@ -28,7 +29,8 @@ export class Prompt extends Model<PromptAttributes, PromptCreationAttributes> im
   public description?: string;
   public version!: number;
   public isTemplate!: boolean;
-  public category?: string;
+  public category?: string; // 保留用于向后兼容
+  public categoryId?: number; // 新的分类关联字段
   public tags?: string[];
   public userId!: number;
   public parentId?: number;
@@ -69,6 +71,10 @@ Prompt.init(
     },
     category: {
       type: DataTypes.STRING(100),
+      allowNull: true,
+    },
+    categoryId: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
     tags: {

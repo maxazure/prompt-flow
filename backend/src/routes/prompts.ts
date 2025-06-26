@@ -6,6 +6,7 @@ import {
   getPromptById,
   updatePrompt,
   deletePrompt,
+  getPromptsByCategory,
 } from '../services/promptService';
 import { PromptVersion } from '../models';
 import { validateCreatePromptData, validateUpdatePromptData } from '../utils/promptValidation';
@@ -15,11 +16,12 @@ const router: Router = express.Router();
 // GET /api/prompts/my - Get user's own prompts (both public and private)
 router.get('/my', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const { category, isTemplate } = req.query;
+    const { category, categoryId, isTemplate } = req.query;
     
     const options = {
       userId: req.user!.id,
       category: category as string,
+      categoryId: categoryId ? parseInt(categoryId as string) : undefined,
       isTemplate: isTemplate === 'true' ? true : undefined,
     };
 
@@ -35,10 +37,11 @@ router.get('/my', authenticateToken, async (req: AuthenticatedRequest, res) => {
 // GET /api/prompts - Get public prompts  
 router.get('/', optionalAuth, async (req: AuthenticatedRequest, res) => {
   try {
-    const { category, isTemplate } = req.query;
+    const { category, categoryId, isTemplate } = req.query;
     
     const options = {
       category: category as string,
+      categoryId: categoryId ? parseInt(categoryId as string) : undefined,
       isTemplate: isTemplate === 'true' ? true : undefined,
     };
 
@@ -47,6 +50,45 @@ router.get('/', optionalAuth, async (req: AuthenticatedRequest, res) => {
     res.json({ prompts });
   } catch (error) {
     console.error('Get prompts error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/prompts/categories - Get prompts grouped by categories
+router.get('/categories', optionalAuth, async (req: AuthenticatedRequest, res) => {
+  try {
+    const { isTemplate, includePrompts } = req.query;
+    
+    const options = {
+      isTemplate: isTemplate === 'true' ? true : undefined,
+      includePrompts: includePrompts !== 'false', // default to true unless explicitly false
+    };
+
+    const categorizedPrompts = await getPromptsByCategory(options);
+
+    res.json({ categories: categorizedPrompts });
+  } catch (error) {
+    console.error('Get prompts by category error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/prompts/my/categories - Get user's own prompts grouped by categories
+router.get('/my/categories', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  try {
+    const { isTemplate, includePrompts } = req.query;
+    
+    const options = {
+      userId: req.user!.id,
+      isTemplate: isTemplate === 'true' ? true : undefined,
+      includePrompts: includePrompts !== 'false', // default to true unless explicitly false
+    };
+
+    const categorizedPrompts = await getPromptsByCategory(options);
+
+    res.json({ categories: categorizedPrompts });
+  } catch (error) {
+    console.error('Get user prompts by category error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

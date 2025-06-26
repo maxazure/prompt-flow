@@ -1,4 +1,4 @@
-import { Prompt, User, PromptVersion } from '../models';
+import { Prompt, User, PromptVersion, Category } from '../models';
 import { WhereOptions, Op } from 'sequelize';
 
 export interface CreatePromptData {
@@ -24,8 +24,17 @@ export interface UpdatePromptData {
 export interface GetPromptsOptions {
   userId?: number;
   category?: string;
+  categoryId?: number;
   isPublic?: boolean;
   isTemplate?: boolean;
+  includePrompts?: boolean;
+}
+
+export interface CategoryAggregation {
+  categoryName: string;
+  categoryId: number | null;
+  count: number;
+  prompts?: Prompt[];
 }
 
 export const createPrompt = async (userId: number, data: CreatePromptData) => {
@@ -66,6 +75,10 @@ export const getPrompts = async (options: GetPromptsOptions = {}) => {
 
   if (options.category) {
     whereClause.category = options.category;
+  }
+
+  if (options.categoryId) {
+    whereClause.categoryId = options.categoryId;
   }
 
   if (options.isTemplate !== undefined) {
@@ -170,4 +183,63 @@ export const deletePrompt = async (id: number, userId: number) => {
   }
 
   await prompt.destroy();
+};
+
+export const getPromptsByCategory = async (options: GetPromptsOptions = {}): Promise<CategoryAggregation[]> => {
+  const whereClause: WhereOptions = {};
+
+  if (options.userId) {
+    whereClause.userId = options.userId;
+  } else {
+    whereClause.isPublic = true;
+  }
+
+  if (options.isTemplate !== undefined) {
+    whereClause.isTemplate = options.isTemplate;
+  }
+
+  // Get prompts with category information
+  const prompts = await Prompt.findAll({
+    where: whereClause,
+    include: [
+      {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'username'],
+      },
+      {
+        model: Category,
+        as: 'categoryRelation',
+        attributes: ['id', 'name'],
+        required: false,
+      },
+    ],
+    order: [['updatedAt', 'DESC']],
+  });
+
+  // Group prompts by category
+  const categoryMap = new Map<string, CategoryAggregation>();
+
+  prompts.forEach(prompt => {
+    const categoryName = (prompt as any).categoryRelation?.name || prompt.category || 'Uncategorized';
+    const categoryId = (prompt as any).categoryRelation?.id || null;
+    const key = `${categoryId}-${categoryName}`;
+
+    if (!categoryMap.has(key)) {
+      categoryMap.set(key, {
+        categoryName,
+        categoryId,
+        count: 0,
+        prompts: [],
+      });
+    }
+
+    const category = categoryMap.get(key)!;
+    category.count++;
+    if (options.includePrompts !== false) {
+      category.prompts!.push(prompt);
+    }
+  });
+
+  return Array.from(categoryMap.values()).sort((a, b) => a.categoryName.localeCompare(b.categoryName));
 };
