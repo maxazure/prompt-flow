@@ -33,12 +33,20 @@ const PromptDetail: React.FC = () => {
     }
   }, [id]);
 
-  // 确保未登录用户不能访问AI功能标签
+  // 确保用户不能访问无权限的标签
   useEffect(() => {
+    if (!prompt) return;
+    
+    // AI功能只对已登录用户可见
     if (!isAuthenticated && (activeTab === 'optimize' || activeTab === 'analyze')) {
       setActiveTab('content');
     }
-  }, [isAuthenticated, activeTab]);
+    
+    // Version History 和 Comments 需要公开提示词或已登录用户
+    if (!prompt.isPublic && !isAuthenticated && (activeTab === 'versions' || activeTab === 'comments')) {
+      setActiveTab('content');
+    }
+  }, [isAuthenticated, activeTab, prompt]);
 
   const loadPrompt = async (promptId: number) => {
     try {
@@ -234,26 +242,32 @@ const PromptDetail: React.FC = () => {
           >
             Content
           </button>
-          <button
-            onClick={() => setActiveTab('versions')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'versions'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Version History
-          </button>
-          <button
-            onClick={() => setActiveTab('comments')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'comments'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Comments
-          </button>
+          {/* Version History - 公开提示词或已登录用户可见 */}
+          {(prompt?.isPublic || isAuthenticated) && (
+            <button
+              onClick={() => setActiveTab('versions')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'versions'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Version History
+            </button>
+          )}
+          {/* Comments - 公开提示词或已登录用户可见 */}
+          {(prompt?.isPublic || isAuthenticated) && (
+            <button
+              onClick={() => setActiveTab('comments')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'comments'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Comments
+            </button>
+          )}
           {isAuthenticated && (
             <>
               <button
@@ -376,7 +390,7 @@ const PromptDetail: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'versions' && (
+      {activeTab === 'versions' && (prompt?.isPublic || isAuthenticated) && (
         <div>
           <VersionHistory
             promptId={prompt.id}
@@ -387,7 +401,7 @@ const PromptDetail: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'comments' && (
+      {activeTab === 'comments' && (prompt?.isPublic || isAuthenticated) && (
         <div>
           <Comments promptId={prompt.id} />
         </div>
