@@ -2,12 +2,12 @@ import dotenv from 'dotenv';
 // 确保环境变量在所有其他导入之前加载
 dotenv.config();
 
-import express from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
 import { initDatabase } from './config/database';
 import routes from './routes';
 
-const app = express();
+const app: Express = express();
 
 app.use(cors());
 app.use(express.json());

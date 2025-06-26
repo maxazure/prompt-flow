@@ -1,9 +1,9 @@
-import express from 'express';
+import express, { Router } from 'express';
 import { Op } from 'sequelize';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import { Team, TeamMember, TeamRole, User } from '../models';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // 获取用户的团队列表
 router.get('/', authenticateToken, async (req: AuthenticatedRequest, res) => {

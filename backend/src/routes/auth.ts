@@ -1,8 +1,8 @@
-import express from 'express';
+import express, { Router } from 'express';
 import { registerUser, loginUser } from '../services/authService';
 import { validateRegisterData, validateLoginData } from '../utils/validation';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 router.post('/register', async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Router } from 'express';
 import authRoutes from './auth';
 import promptRoutes from './prompts';
 import versionRoutes from './versions';
@@ -6,7 +6,7 @@ import teamsRoutes from './teams';
 import commentsRoutes from './comments';
 import aiRoutes from './ai';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 router.use('/auth', authRoutes);
 router.use('/prompts', promptRoutes);

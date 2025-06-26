@@ -1,9 +1,9 @@
-import express from 'express';
+import express, { Router } from 'express';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import { aiService } from '../services/aiService';
 import { Prompt } from '../models';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // Analyze prompt quality and get optimization suggestions
 router.post('/analyze', authenticateToken, async (req: AuthenticatedRequest, res) => {

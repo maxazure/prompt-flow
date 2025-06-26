@@ -1,9 +1,9 @@
-import { Router } from 'express';
+import express, { Router } from 'express';
 import { Request, Response } from 'express';
 import { Prompt, PromptVersion, User } from '../models';
 import { authenticateToken } from '../middleware/auth';
 
-const router = Router();
+const router: Router = express.Router();
 
 // GET /api/prompts/:id/versions - Get version history
 router.get('/prompts/:id/versions', authenticateToken, async (req: Request, res: Response) => {

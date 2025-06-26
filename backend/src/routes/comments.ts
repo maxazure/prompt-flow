@@ -1,9 +1,9 @@
-import express from 'express';
+import express, { Router } from 'express';
 import { Op } from 'sequelize';
 import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
 import { Comment, User, Prompt } from '../models';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // 获取提示词的评论列表
 router.get('/prompt/:promptId', authenticateToken, async (req: AuthenticatedRequest, res) => {

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Router } from 'express';
 import { authenticateToken, optionalAuth, AuthenticatedRequest } from '../middleware/auth';
 import {
   createPrompt,
@@ -10,7 +10,7 @@ import {
 import { PromptVersion } from '../models';
 import { validateCreatePromptData, validateUpdatePromptData } from '../utils/promptValidation';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 // GET /api/prompts/my - Get user's own prompts (both public and private)
 router.get('/my', authenticateToken, async (req: AuthenticatedRequest, res) => {
