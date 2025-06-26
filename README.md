@@ -159,12 +159,28 @@ npm install
 
 4. **配置环境变量**
 
-创建 `backend/.env` 文件：
+在项目根目录创建 `.env` 文件：
+```bash
+cp .env.example .env
+```
+
+编辑 `.env` 文件，设置必要的配置：
 ```env
+# 应用环境
 NODE_ENV=development
+
+# 服务端口
 PORT=3001
+
+# JWT 密钥
 JWT_SECRET=your_super_secret_jwt_key
+
+# OpenAI API 配置 (可选)
 OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-4.1-nano
+
+# 数据库配置
+DATABASE_TYPE=sqlite  # 或 postgres
 ```
 
 **OpenAI API 配置 (可选)**：
@@ -172,9 +188,19 @@ OPENAI_API_KEY=your_openai_api_key_here
 - 配置后可使用 gpt-4.1-nano 模型进行高质量的提示词分析和优化
 - 在 [OpenAI API Keys](https://platform.openai.com/api-keys) 获取你的 API 密钥
 
-创建 `frontend/.env` 文件：
+在前端目录创建 `.env` 文件：
+```bash
+cd frontend
+cp .env.example .env
+```
+
+前端环境变量配置：
 ```env
-VITE_API_URL=http://localhost:3001
+# API 基础 URL
+VITE_API_BASE_URL=http://localhost:3001
+
+# 应用环境
+VITE_APP_ENV=development
 ```
 
 5. **启动开发服务器**
