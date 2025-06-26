@@ -28,13 +28,23 @@ import type {
   PromptValidation,
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// 从环境变量获取 API 基础 URL，支持多种配置方式
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+// 在开发环境下打印配置信息
+if (import.meta.env.DEV) {
+  console.log('🔧 API Configuration:', {
+    baseURL: API_BASE_URL,
+    environment: import.meta.env.MODE,
+  });
+}
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30 秒超时
 });
 
 // Add auth token to requests

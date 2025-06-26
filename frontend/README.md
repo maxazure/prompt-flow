@@ -1,54 +1,144 @@
-# React + TypeScript + Vite
+# PromptFlow Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript + Vite 前端应用，用于 PromptFlow 提示词管理平台。
 
-Currently, two official plugins are available:
+## 环境配置
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 开发环境
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+1. 复制环境变量配置文件：
+```bash
+cp .env.example .env
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. 编辑 `.env` 文件，设置你的配置：
+```env
+# API 基础 URL
+VITE_API_BASE_URL=http://localhost:3001
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+# 应用环境
+VITE_APP_ENV=development
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+# 应用名称
+VITE_APP_NAME=PromptFlow
 ```
+
+### 生产环境
+
+1. 复制生产环境配置文件：
+```bash
+cp .env.production.example .env.production
+```
+
+2. 根据你的生产环境设置相应的值：
+```env
+# 生产环境 API 地址
+VITE_API_BASE_URL=https://api.your-domain.com
+
+# 应用环境
+VITE_APP_ENV=production
+```
+
+## 环境变量说明
+
+| 变量名 | 说明 | 默认值 | 必需 |
+|--------|------|--------|------|
+| `VITE_API_BASE_URL` | API 服务器基础 URL | `http://localhost:3001` | 是 |
+| `VITE_APP_ENV` | 应用运行环境 | `development` | 是 |
+| `VITE_APP_NAME` | 应用显示名称 | `PromptFlow` | 是 |
+| `VITE_ENABLE_ANALYTICS` | 是否启用分析 | `false` | 否 |
+| `VITE_GA_TRACKING_ID` | Google Analytics ID | - | 否 |
+
+## 开发
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 预览生产构建
+npm run preview
+
+# 运行测试
+npm test
+
+# 运行 linting
+npm run lint
+```
+
+## 构建和部署
+
+### 本地构建
+
+```bash
+# 使用默认环境变量构建
+npm run build
+
+# 使用生产环境变量构建
+npm run build -- --mode production
+```
+
+### Docker 构建
+
+项目包含 Dockerfile 和 nginx 配置，支持容器化部署：
+
+```bash
+# 构建 Docker 镜像
+docker build -t promptflow-frontend .
+
+# 运行容器
+docker run -p 80:80 promptflow-frontend
+```
+
+### 部署配置
+
+在部署时，可以通过以下方式配置环境变量：
+
+1. **构建时注入**：在构建时设置环境变量
+   ```bash
+   VITE_API_BASE_URL=https://api.production.com npm run build
+   ```
+
+2. **使用 .env 文件**：创建 `.env.production` 文件并在构建时使用
+   ```bash
+   npm run build -- --mode production
+   ```
+
+3. **CI/CD 环境变量**：在 CI/CD 平台（如 GitHub Actions）中设置环境变量
+
+## 项目结构
+
+```
+frontend/
+├── src/
+│   ├── components/     # 可复用组件
+│   ├── pages/         # 页面组件
+│   ├── services/      # API 服务
+│   ├── context/       # React Context
+│   ├── types/         # TypeScript 类型定义
+│   └── App.tsx        # 应用主组件
+├── public/            # 静态资源
+├── .env.example       # 环境变量示例
+└── vite.config.ts     # Vite 配置
+```
+
+## 技术栈
+
+- **React** - UI 框架
+- **TypeScript** - 类型安全
+- **Vite** - 构建工具
+- **Tailwind CSS** - 样式框架
+- **Axios** - HTTP 客户端
+- **React Router** - 路由管理
+- **Recharts** - 数据可视化
+
+## 注意事项
+
+1. 所有环境变量必须以 `VITE_` 前缀开头才能在客户端代码中访问
+2. 不要在环境变量中存储敏感信息（如 API 密钥），这些信息会暴露在客户端代码中
+3. 生产环境部署时，确保 API 服务器配置了正确的 CORS 设置
