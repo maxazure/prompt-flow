@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { commentsAPI } from '../services/api';
 import type { Comment, CreateCommentRequest, UpdateCommentRequest } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +10,7 @@ interface CommentsProps {
 
 const Comments: React.FC<CommentsProps> = ({ promptId }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -301,7 +303,12 @@ const Comments: React.FC<CommentsProps> = ({ promptId }) => {
           <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-md text-center">
             <p className="text-gray-600">
               <span className="text-gray-500">Please </span>
-              <span className="text-indigo-600 font-medium">log in</span>
+              <button
+                onClick={() => navigate('/login')}
+                className="text-indigo-600 font-medium hover:text-indigo-700 hover:underline focus:outline-none focus:underline"
+              >
+                log in
+              </button>
               <span className="text-gray-500"> to post comments</span>
             </p>
           </div>
