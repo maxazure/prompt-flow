@@ -121,6 +121,29 @@ export const updatePrompt = async (id: number, userId: number, data: UpdatePromp
     throw new Error('Access denied');
   }
 
+  // Check if there are any actual changes
+  const hasChanges = Object.keys(data).some(key => {
+    const oldValue = prompt[key as keyof typeof prompt];
+    const newValue = data[key as keyof UpdatePromptData];
+    
+    // Handle array comparison for tags
+    if (key === 'tags') {
+      if (Array.isArray(oldValue) && Array.isArray(newValue)) {
+        if (oldValue.length !== newValue.length) return true;
+        return !oldValue.every((tag, index) => tag === newValue[index]);
+      }
+      return oldValue !== newValue;
+    }
+    
+    // Handle other fields
+    return oldValue !== newValue;
+  });
+
+  // If no changes detected, return the existing prompt without updating
+  if (!hasChanges) {
+    return prompt;
+  }
+
   await prompt.update(data);
   await prompt.reload({
     include: [
