@@ -209,7 +209,7 @@ const Comments: React.FC<CommentsProps> = ({ promptId }) => {
           ) : (
             <>
               <p className="text-gray-700 mb-3">{comment.content}</p>
-              {!isReply && (
+              {!isReply && user && (
                 <button
                   onClick={() => setReplyTo(comment.id)}
                   className="text-indigo-600 hover:text-indigo-700 text-sm"
@@ -263,13 +263,6 @@ const Comments: React.FC<CommentsProps> = ({ promptId }) => {
     );
   };
 
-  if (!user) {
-    return (
-      <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
-        <p className="text-gray-500">Please log in to view and post comments.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -284,25 +277,35 @@ const Comments: React.FC<CommentsProps> = ({ promptId }) => {
           </div>
         )}
 
-        {/* New Comment Form */}
-        <form onSubmit={handleCreateComment} className="mb-6">
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
-            rows={3}
-            required
-          />
-          <div className="flex justify-end">
-            <button
-              type="submit"
+        {/* New Comment Form - 只对已登录用户显示 */}
+        {user ? (
+          <form onSubmit={handleCreateComment} className="mb-6">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Add a comment..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
+              rows={3}
+              required
+            />
+            <div className="flex justify-end">
+              <button
+                type="submit"
               className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               Post Comment
             </button>
           </div>
         </form>
+        ) : (
+          <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-md text-center">
+            <p className="text-gray-600">
+              <span className="text-gray-500">Please </span>
+              <span className="text-indigo-600 font-medium">log in</span>
+              <span className="text-gray-500"> to post comments</span>
+            </p>
+          </div>
+        )}
 
         {/* Comments List */}
         {loading ? (

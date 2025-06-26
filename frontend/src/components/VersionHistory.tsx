@@ -112,7 +112,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                 <span className="text-xs text-gray-500">
                   {formatDate(version.createdAt)}
                 </span>
-                {version.version !== currentVersion && (
+                {version.version !== currentVersion && onRevert && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
