@@ -14,7 +14,7 @@ const PromptDetail: React.FC = () => {
   
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,6 +32,13 @@ const PromptDetail: React.FC = () => {
       loadPrompt(parseInt(id));
     }
   }, [id]);
+
+  // 确保未登录用户不能访问AI功能标签
+  useEffect(() => {
+    if (!isAuthenticated && (activeTab === 'optimize' || activeTab === 'analyze')) {
+      setActiveTab('content');
+    }
+  }, [isAuthenticated, activeTab]);
 
   const loadPrompt = async (promptId: number) => {
     try {
@@ -247,31 +254,35 @@ const PromptDetail: React.FC = () => {
           >
             Comments
           </button>
-          <button
-            onClick={() => setActiveTab('optimize')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'optimize'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            AI Optimization
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('analyze');
-              if (!analysis && !analyzing) {
-                loadAIAnalysis();
-              }
-            }}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'analyze'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            📊 AI Analysis
-          </button>
+          {isAuthenticated && (
+            <>
+              <button
+                onClick={() => setActiveTab('optimize')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'optimize'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                AI Optimization
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('analyze');
+                  if (!analysis && !analyzing) {
+                    loadAIAnalysis();
+                  }
+                }}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'analyze'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                📊 AI Analysis
+              </button>
+            </>
+          )}
         </nav>
       </div>
 
@@ -382,7 +393,7 @@ const PromptDetail: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'optimize' && (
+      {activeTab === 'optimize' && isAuthenticated && (
         <div>
           <PromptOptimizer
             content={prompt.content}
@@ -396,7 +407,7 @@ const PromptDetail: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'analyze' && (
+      {activeTab === 'analyze' && isAuthenticated && (
         <div className="space-y-6">
           {analyzing ? (
             <div className="flex items-center justify-center h-64">
