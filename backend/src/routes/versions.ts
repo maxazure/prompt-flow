@@ -1,15 +1,15 @@
 import express, { Router } from 'express';
 import { Request, Response } from 'express';
 import { Prompt, PromptVersion, User } from '../models';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, optionalAuth } from '../middleware/auth';
 
 const router: Router = express.Router();
 
 // GET /api/prompts/:id/versions - Get version history
-router.get('/prompts/:id/versions', authenticateToken, async (req: Request, res: Response) => {
+router.get('/prompts/:id/versions', optionalAuth, async (req: Request, res: Response) => {
   try {
     const promptId = parseInt(req.params.id);
-    const userId = (req as any).user.id;
+    const userId = (req as any).user?.id;
 
     if (isNaN(promptId)) {
       return res.status(400).json({ error: 'Invalid prompt ID' });
@@ -109,11 +109,11 @@ router.post('/prompts/:id/versions', authenticateToken, async (req: Request, res
 });
 
 // GET /api/prompts/:id/versions/:version - Get specific version
-router.get('/prompts/:id/versions/:version', authenticateToken, async (req: Request, res: Response) => {
+router.get('/prompts/:id/versions/:version', optionalAuth, async (req: Request, res: Response) => {
   try {
     const promptId = parseInt(req.params.id);
     const version = parseInt(req.params.version);
-    const userId = (req as any).user.id;
+    const userId = (req as any).user?.id;
 
     if (isNaN(promptId) || isNaN(version)) {
       return res.status(400).json({ error: 'Invalid prompt ID or version' });

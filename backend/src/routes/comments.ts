@@ -1,12 +1,12 @@
 import express, { Router } from 'express';
 import { Op } from 'sequelize';
-import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
+import { authenticateToken, optionalAuth, AuthenticatedRequest } from '../middleware/auth';
 import { Comment, User, Prompt } from '../models';
 
 const router: Router = express.Router();
 
 // 获取提示词的评论列表
-router.get('/prompt/:promptId', authenticateToken, async (req: AuthenticatedRequest, res) => {
+router.get('/prompt/:promptId', optionalAuth, async (req: AuthenticatedRequest, res) => {
   try {
     const promptId = parseInt(req.params.promptId);
     const userId = req.user?.id;
