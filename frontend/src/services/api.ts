@@ -26,6 +26,10 @@ import type {
   CategorizeRequest,
   ValidateRequest,
   PromptValidation,
+  Category,
+  CreateCategoryRequest,
+  UpdateCategoryRequest,
+  CategoryStats,
 } from '../types';
 
 // 从环境变量获取 API 基础 URL，支持多种配置方式
@@ -268,6 +272,83 @@ export const aiAPI = {
 
   async getInsights(): Promise<{ success: boolean; data: PromptInsights }> {
     const response = await api.get('/ai/insights');
+    return response.data;
+  },
+};
+
+// =====================================================
+// Categories API - Phase 4 Implementation
+// =====================================================
+
+export const categoriesAPI = {
+  // 获取用户可见的所有分类
+  async getCategories(params?: { 
+    scope?: string; 
+    search?: string; 
+    onlyActive?: boolean 
+  }): Promise<{ categories: Category[] }> {
+    const response = await api.get('/categories', { params });
+    return response.data;
+  },
+
+  // 获取分类统计信息
+  async getCategoryStats(): Promise<{ stats: CategoryStats }> {
+    const response = await api.get('/categories/stats');
+    return response.data;
+  },
+
+  // 获取特定分类详情
+  async getCategory(id: number): Promise<{ category: Category }> {
+    const response = await api.get(`/categories/${id}`);
+    return response.data;
+  },
+
+  // 创建新分类
+  async createCategory(data: CreateCategoryRequest): Promise<{ 
+    message: string; 
+    category: Category 
+  }> {
+    const response = await api.post('/categories', data);
+    return response.data;
+  },
+
+  // 更新分类
+  async updateCategory(
+    id: number, 
+    data: UpdateCategoryRequest
+  ): Promise<{ 
+    message: string; 
+    category: Category 
+  }> {
+    const response = await api.put(`/categories/${id}`, data);
+    return response.data;
+  },
+
+  // 删除分类
+  async deleteCategory(id: number): Promise<{ message: string }> {
+    const response = await api.delete(`/categories/${id}`);
+    return response.data;
+  },
+
+  // 获取分类下的提示词聚合信息
+  async getCategoryPrompts(params?: {
+    categoryId?: number;
+    categoryName?: string;
+    scope?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ prompts: Prompt[]; total: number; category?: Category }> {
+    const response = await api.get('/prompts/categories', { params });
+    return response.data;
+  },
+
+  // 批量操作分类 (未来功能)
+  async bulkUpdateCategories(operations: Array<{
+    id: number;
+    action: 'update' | 'delete';
+    data?: UpdateCategoryRequest;
+  }>): Promise<{ message: string; results: any[] }> {
+    const response = await api.post('/categories/bulk', { operations });
     return response.data;
   },
 };

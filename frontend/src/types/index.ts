@@ -13,7 +13,8 @@ export interface Prompt {
   description?: string;
   version: number;
   isTemplate: boolean;
-  category?: string;
+  category?: string; // 保留向后兼容
+  categoryId?: number; // 新的分类关联
   tags?: string[];
   userId: number;
   parentId?: number;
@@ -22,6 +23,7 @@ export interface Prompt {
   createdAt?: string;
   updatedAt?: string;
   user?: Pick<User, 'id' | 'username'>;
+  categoryInfo?: Category; // 分类详细信息
 }
 
 export interface LoginRequest {
@@ -233,4 +235,148 @@ export interface PromptValidation {
   issues: string[];
   suggestions: string[];
 }
+
+// =====================================================
+// Category Management Types - Phase 4 Implementation
+// =====================================================
+
+// 分类作用域枚举
+export const CategoryScope = {
+  PERSONAL: 'personal',
+  TEAM: 'team', 
+  PUBLIC: 'public'
+} as const;
+
+export type CategoryScope = typeof CategoryScope[keyof typeof CategoryScope];
+
+// 分类颜色预设
+export const CategoryColors = [
+  '#3B82F6', // 蓝色
+  '#10B981', // 绿色  
+  '#F59E0B', // 橙色
+  '#EF4444', // 红色
+  '#8B5CF6', // 紫色
+  '#06B6D4', // 青色
+  '#84CC16', // 青绿色
+  '#F97316', // 深橙色
+] as const;
+
+export type CategoryColor = typeof CategoryColors[number];
+
+// 分类核心数据接口
+export interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  scopeType: CategoryScope;
+  scopeId?: number; // team ID for team scope, null for personal/public
+  createdBy: number;
+  color: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  
+  // 扩展信息
+  promptCount?: number; // 该分类下的提示词数量
+  canEdit?: boolean; // 当前用户是否可编辑该分类
+  creator?: Pick<User, 'id' | 'username'>; // 创建者信息
+  team?: Pick<Team, 'id' | 'name'>; // 团队信息 (team scope)
+}
+
+// 分类聚合信息 - 用于前端显示
+export interface CategoryGroup {
+  name: string; // 分类名称
+  categories: Category[]; // 同名分类的所有实例
+  totalPrompts: number; // 总提示词数量
+  scopes: CategoryScope[]; // 包含的作用域
+  canCreate: boolean; // 是否可以在此分类下创建新实例
+}
+
+// 分类创建请求
+export interface CreateCategoryRequest {
+  name: string;
+  description?: string;
+  scopeType: CategoryScope;
+  scopeId?: number; // team ID for team categories
+  color?: string;
+}
+
+// 分类更新请求  
+export interface UpdateCategoryRequest {
+  name?: string;
+  description?: string;
+  color?: string;
+  isActive?: boolean;
+}
+
+// 分类统计信息
+export interface CategoryStats {
+  totalCategories: number;
+  personalCategories: number;
+  teamCategories: number;
+  publicCategories: number;
+  recentlyUsed: Category[];
+  mostPopular: Category[];
+}
+
+// CategoryContext 状态接口
+export interface CategoryContextType {
+  // 数据状态
+  categories: Category[];
+  categoryGroups: CategoryGroup[];
+  selectedCategory: string | null; // category ID or "all"
+  sidebarCollapsed: boolean;
+  
+  // 加载状态
+  loading: boolean;
+  error: string | null;
+  
+  // 操作方法
+  selectCategory: (categoryId: string | null) => void;
+  toggleSidebar: () => void;
+  searchCategories: (term: string) => Category[];
+  getCategoryById: (id: number) => Category | undefined;
+  getCategoryGroup: (name: string) => CategoryGroup | undefined;
+  
+  // CRUD 操作
+  createCategory: (data: CreateCategoryRequest) => Promise<Category>;
+  updateCategory: (id: number, data: UpdateCategoryRequest) => Promise<Category>;
+  deleteCategory: (id: number) => Promise<void>;
+  refreshCategories: () => Promise<void>;
+}
+
+// 分类筛选选项
+export interface CategoryFilter {
+  scope?: CategoryScope;
+  searchTerm?: string;
+  onlyEditable?: boolean;
+  onlyActive?: boolean;
+}
+
+// 分类选择器组件属性
+export interface CategorySelectorProps {
+  value?: number | null;
+  onChange: (categoryId: number | null) => void;
+  placeholder?: string;
+  allowCreate?: boolean;
+  filter?: CategoryFilter;
+  disabled?: boolean;
+  className?: string;
+}
+
+// 侧边栏相关类型
+export interface SidebarState {
+  collapsed: boolean;
+  width: number;
+  expandedGroups: Set<string>;
+}
+
+// 响应式断点
+export const Breakpoints = {
+  MOBILE: 768,
+  TABLET: 1024,
+  DESKTOP: 1440
+} as const;
+
+export type BreakpointKey = keyof typeof Breakpoints;
 

@@ -1,7 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { CategoryProvider } from './context/CategoryContext';
 import Layout from './components/Layout';
+import MainLayout from './components/MainLayout';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -20,30 +22,100 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
+// 使用新布局的页面列表 (分类系统集成页面)
+const MAIN_LAYOUT_PAGES = ['/', '/dashboard', '/category'];
+
+// 布局选择组件
+const LayoutSelector: React.FC<{ children: React.ReactNode; path: string }> = ({ 
+  children, 
+  path 
+}) => {
+  // 检查是否应该使用新的MainLayout
+  const shouldUseMainLayout = MAIN_LAYOUT_PAGES.some(page => 
+    path === page || path.startsWith(page + '/')
+  );
+
+  if (shouldUseMainLayout) {
+    return <MainLayout>{children}</MainLayout>;
+  }
+
+  return <Layout>{children}</Layout>;
+};
+
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <Layout>
+        <CategoryProvider>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/prompts/:id" element={<PromptDetail />} />
+            {/* 使用新MainLayout的页面 */}
+            <Route 
+              path="/" 
+              element={
+                <LayoutSelector path="/">
+                  <Home />
+                </LayoutSelector>
+              } 
+            />
+            <Route 
+              path="/category/:categoryId" 
+              element={
+                <LayoutSelector path="/category">
+                  <Home />
+                </LayoutSelector>
+              } 
+            />
             <Route
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <LayoutSelector path="/dashboard">
+                    <Dashboard />
+                  </LayoutSelector>
                 </ProtectedRoute>
               }
+            />
+
+            {/* 使用传统Layout的页面 */}
+            <Route 
+              path="/login" 
+              element={
+                <Layout>
+                  <Login />
+                </Layout>
+              } 
+            />
+            <Route 
+              path="/register" 
+              element={
+                <Layout>
+                  <Register />
+                </Layout>
+              } 
+            />
+            <Route 
+              path="/templates" 
+              element={
+                <Layout>
+                  <Templates />
+                </Layout>
+              } 
+            />
+            <Route 
+              path="/prompts/:id" 
+              element={
+                <Layout>
+                  <PromptDetail />
+                </Layout>
+              } 
             />
             <Route
               path="/create"
               element={
                 <ProtectedRoute>
-                  <CreatePrompt />
+                  <Layout>
+                    <CreatePrompt />
+                  </Layout>
                 </ProtectedRoute>
               }
             />
@@ -51,7 +123,9 @@ function App() {
               path="/prompts/:id/edit"
               element={
                 <ProtectedRoute>
-                  <EditPrompt />
+                  <Layout>
+                    <EditPrompt />
+                  </Layout>
                 </ProtectedRoute>
               }
             />
@@ -59,7 +133,9 @@ function App() {
               path="/teams"
               element={
                 <ProtectedRoute>
-                  <Teams />
+                  <Layout>
+                    <Teams />
+                  </Layout>
                 </ProtectedRoute>
               }
             />
@@ -67,7 +143,9 @@ function App() {
               path="/teams/:id"
               element={
                 <ProtectedRoute>
-                  <TeamDetail />
+                  <Layout>
+                    <TeamDetail />
+                  </Layout>
                 </ProtectedRoute>
               }
             />
@@ -75,12 +153,14 @@ function App() {
               path="/insights"
               element={
                 <ProtectedRoute>
-                  <Insights />
+                  <Layout>
+                    <Insights />
+                  </Layout>
                 </ProtectedRoute>
               }
             />
           </Routes>
-        </Layout>
+        </CategoryProvider>
       </Router>
     </AuthProvider>
   );
