@@ -169,7 +169,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 **OpenAI API 配置 (可选)**：
 - 如果不配置 `OPENAI_API_KEY`，AI 功能将使用基础分析模式
-- 配置后可使用 GPT-4o-mini 模型进行高质量的提示词分析和优化
+- 配置后可使用 gpt-4.1-nano 模型进行高质量的提示词分析和优化
 - 在 [OpenAI API Keys](https://platform.openai.com/api-keys) 获取你的 API 密钥
 
 创建 `frontend/.env` 文件：

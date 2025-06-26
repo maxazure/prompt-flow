@@ -126,3 +126,18 @@ docs/build/
 # Local configuration files
 config.local.js
 config.local.json
+
+# Docker related
+docker-compose.override.yml
+.docker/
+
+# Production data
+data/
+*.sqlite*
+
+# Docker volumes
+volumes/
+
+# Deployment secrets
+secrets/
+.secrets/

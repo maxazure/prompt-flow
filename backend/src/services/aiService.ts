@@ -23,10 +23,17 @@ class AIService {
   private openai: OpenAI | null = null;
 
   constructor() {
+    console.log('🔧 AIService initializing...');
+    console.log(`🔑 OPENAI_API_KEY present: ${process.env.OPENAI_API_KEY ? 'YES' : 'NO'}`);
+    
     if (process.env.OPENAI_API_KEY) {
+      console.log(`🔑 API Key length: ${process.env.OPENAI_API_KEY.length} characters`);
       this.openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
       });
+      console.log('✅ OpenAI client initialized successfully');
+    } else {
+      console.log('⚠️  No OpenAI API key found, using basic analysis mode');
     }
   }
 
@@ -163,12 +170,22 @@ ${content}
 }`;
 
     try {
+      const modelName = process.env.OPENAI_MODEL || 'gpt-4.1-nano';
+      console.log(`🤖 Calling OpenAI API for analysis...`);
+      console.log(`   🎯 Model: ${modelName}`);
+      console.log(`   📝 Prompt length: ${prompt.length} characters`);
+      
+      const startTime = Date.now();
       const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: process.env.OPENAI_MODEL || 'gpt-4.1-nano',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 1000,
         temperature: 0.3,
       });
+      const apiDuration = Date.now() - startTime;
+      
+      console.log(`   ⚡ OpenAI API responded in ${apiDuration}ms`);
+      console.log(`   📊 Usage: ${completion.usage?.total_tokens || 'unknown'} tokens`);
 
       const response = completion.choices[0]?.message?.content;
       if (!response) return {};
@@ -242,7 +259,7 @@ ${suggestions.map(s => `• ${s.title}: ${s.description}`).join('\n')}
 优化后的提示词：`;
 
       const completion = await this.openai!.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: process.env.OPENAI_MODEL || 'gpt-4.1-nano',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 800,
         temperature: 0.5,
@@ -314,7 +331,7 @@ ${content}
 请以JSON数组格式返回分类结果，例如：["web-development", "design"]`;
 
       const completion = await this.openai!.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: process.env.OPENAI_MODEL || 'gpt-4.1-nano',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 100,
         temperature: 0.1,
@@ -393,7 +410,7 @@ ${content}
 }`;
 
       const completion = await this.openai!.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: process.env.OPENAI_MODEL || 'gpt-4.1-nano',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 500,
         temperature: 0.2,
@@ -423,4 +440,15 @@ ${content}
   }
 }
 
-export const aiService = new AIService();
+// 延迟初始化，确保环境变量已加载
+let aiServiceInstance: AIService | null = null;
+
+export const getAIService = (): AIService => {
+  if (!aiServiceInstance) {
+    aiServiceInstance = new AIService();
+  }
+  return aiServiceInstance;
+};
+
+// 保持向后兼容
+export const aiService = getAIService();

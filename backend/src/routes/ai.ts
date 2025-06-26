@@ -7,6 +7,10 @@ const router = express.Router();
 
 // Analyze prompt quality and get optimization suggestions
 router.post('/analyze', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  console.log(`🧠 AI Analysis Request from user ${req.user?.id}:`);
+  console.log(`   📝 Content length: ${req.body.content?.length || 0} characters`);
+  console.log(`   🔤 Content preview: "${req.body.content?.substring(0, 100)}..."`);
+  
   try {
     const { content } = req.body;
 
@@ -22,7 +26,12 @@ router.post('/analyze', authenticateToken, async (req: AuthenticatedRequest, res
       });
     }
 
+    const startTime = Date.now();
     const analysis = await aiService.analyzePrompt(content);
+    const duration = Date.now() - startTime;
+
+    console.log(`   ✅ Analysis completed in ${duration}ms`);
+    console.log(`   📊 Score: ${analysis.score}, Suggestions: ${analysis.suggestions.length}`);
 
     res.json({
       success: true,
@@ -202,6 +211,9 @@ router.get('/prompts/:id/analyze', authenticateToken, async (req: AuthenticatedR
 
 // Validate prompt effectiveness
 router.post('/validate', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  console.log(`✅ AI Validation Request from user ${req.user?.id}:`);
+  console.log(`   📝 Content length: ${req.body.content?.length || 0} characters`);
+  
   try {
     const { content } = req.body;
 
@@ -217,7 +229,12 @@ router.post('/validate', authenticateToken, async (req: AuthenticatedRequest, re
       });
     }
 
+    const startTime = Date.now();
     const validation = await aiService.validatePrompt(content);
+    const duration = Date.now() - startTime;
+
+    console.log(`   ✅ Validation completed in ${duration}ms`);
+    console.log(`   📊 Valid: ${validation.isValid}, Score: ${validation.score}, Issues: ${validation.issues.length}`);
 
     res.json({
       success: true,
