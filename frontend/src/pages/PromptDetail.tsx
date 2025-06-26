@@ -18,6 +18,7 @@ const PromptDetail: React.FC = () => {
   
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copySuccess, setCopySuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'content' | 'versions' | 'comments' | 'optimize' | 'analyze'>('content');
   const [selectedVersion, setSelectedVersion] = useState<PromptVersion | null>(null);
@@ -64,6 +65,31 @@ const PromptDetail: React.FC = () => {
   const handleVersionSelect = (version: PromptVersion) => {
     setSelectedVersion(version);
     setShowDiff(true);
+  };
+
+  const handleCopyContent = async () => {
+    if (!prompt?.content) return;
+    
+    try {
+      await navigator.clipboard.writeText(prompt.content);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000); // 2秒后隐藏成功提示
+    } catch (err) {
+      console.error('Failed to copy content:', err);
+      // fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = prompt.content;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   const handleRevert = async (version: number) => {
@@ -260,7 +286,51 @@ const PromptDetail: React.FC = () => {
           )}
 
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Content</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-medium text-gray-900">Content</h3>
+              <button
+                onClick={handleCopyContent}
+                className={`inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md transition-colors ${
+                  copySuccess
+                    ? 'bg-green-100 text-green-800 border-green-200'
+                    : 'bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+                }`}
+              >
+                {copySuccess ? (
+                  <>
+                    <svg
+                      className="w-4 h-4 mr-1.5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-4 h-4 mr-1.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Copy
+                  </>
+                )}
+              </button>
+            </div>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <pre className="whitespace-pre-wrap text-sm text-gray-900 font-mono">
                 {prompt.content}

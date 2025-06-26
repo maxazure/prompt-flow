@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import PromptEditor from '../components/PromptEditor';
+import LazyPromptEditor from '../components/LazyPromptEditor';
 import { promptsAPI } from '../services/api';
 import type { CreatePromptRequest } from '../types';
 import usePageTitle from '../hooks/usePageTitle';
@@ -108,7 +108,7 @@ const CreatePrompt: React.FC = () => {
         </div>
       )}
       
-      <PromptEditor
+      <LazyPromptEditor
         onSave={handleSave}
         onCancel={handleCancel}
         loading={loading}
