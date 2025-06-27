@@ -26,6 +26,24 @@ const createSequelizeInstance = (): Sequelize => {
         idle: 10000
       }
     });
+  } else if (databaseType === 'mysql') {
+    // MySQL 配置
+    console.log('🐬 Configuring MySQL connection...');
+    return new Sequelize({
+      dialect: 'mysql',
+      host: process.env.MYSQL_HOST || 'localhost',
+      port: parseInt(process.env.MYSQL_PORT || '3306'),
+      username: process.env.MYSQL_USER || 'root',
+      password: process.env.MYSQL_PASSWORD || '',
+      database: process.env.MYSQL_DB || 'prompt_flow',
+      logging: process.env.NODE_ENV === 'development' ? console.log : false,
+      pool: {
+        max: 10,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
+      }
+    });
   } else {
     // SQLite 配置 (默认)
     console.log('📁 Configuring SQLite connection...');
