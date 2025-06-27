@@ -148,7 +148,7 @@ const PromptDetail: React.FC = () => {
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="px-6 py-6">
         <div className="bg-red-50 border border-red-200 rounded-md p-6">
           <h2 className="text-lg font-medium text-red-800 mb-2">Error Loading Prompt</h2>
           <p className="text-red-600">{error}</p>
@@ -165,7 +165,7 @@ const PromptDetail: React.FC = () => {
 
   if (!prompt) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="px-6 py-6">
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-900">Prompt Not Found</h2>
           <p className="text-gray-600 mt-2">The prompt you're looking for doesn't exist.</p>
@@ -191,7 +191,36 @@ const PromptDetail: React.FC = () => {
   const categoryInfo = getCategoryInfo();
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="px-6 py-6">
+      {/* 面包屑导航 */}
+      <nav className="mb-6">
+        <ol className="flex items-center space-x-2 text-sm text-gray-500">
+          <li>
+            <a href="/" className="hover:text-blue-600">首页</a>
+          </li>
+          <li>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </li>
+          <li>
+            <span className="text-gray-900 font-medium">提示词详情</span>
+          </li>
+          {prompt && (
+            <>
+              <li>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </li>
+              <li>
+                <span className="text-blue-600 font-medium truncate max-w-48">{prompt.title}</span>
+              </li>
+            </>
+          )}
+        </ol>
+      </nav>
+
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between">
@@ -239,14 +268,6 @@ const PromptDetail: React.FC = () => {
               <span>by {prompt.user?.username || 'Unknown'}</span>
               <span>•</span>
               <span>{new Date(prompt.updatedAt || '').toLocaleDateString()}</span>
-              {prompt.isTemplate && (
-                <>
-                  <span>•</span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    Template
-                  </span>
-                </>
-              )}
               {prompt.isPublic && (
                 <>
                   <span>•</span>

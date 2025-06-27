@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { promptsAPI } from '../services/api';
 import { useCategory } from '../context/CategoryContext';
+import { useSearch } from '../context/SearchContext';
 import type { Prompt } from '../types';
 import usePageTitle from '../hooks/usePageTitle';
 
@@ -9,6 +10,7 @@ const Home: React.FC = () => {
   usePageTitle('Home');
   const { categoryId } = useParams<{ categoryId?: string }>();
   const { selectedCategory, categories, selectCategory } = useCategory();
+  const { searchTerm } = useSearch();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,7 +29,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     loadPrompts();
-  }, [currentCategoryId]);
+  }, [currentCategoryId, searchTerm]);
 
   const loadPrompts = async () => {
     try {
@@ -37,6 +39,11 @@ const Home: React.FC = () => {
       if (currentCategoryId) {
         // 使用分类ID查询
         params = { categoryId: currentCategoryId };
+      }
+      
+      if (searchTerm && searchTerm.trim()) {
+        // 添加搜索参数
+        params = { ...params, search: searchTerm.trim() };
       }
       
       const response = await promptsAPI.getPrompts(params);
@@ -63,7 +70,7 @@ const Home: React.FC = () => {
   const categoryInfo = getCurrentCategoryInfo();
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto pt-6">
       {/* 面包屑导航 */}
       <nav className="mb-6">
         <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -81,32 +88,6 @@ const Home: React.FC = () => {
         </div>
       </nav>
 
-      {/* 页面标题和描述 */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {currentCategoryId ? categoryInfo.name : 'PromptFlow'}
-            </h1>
-            <p className="text-lg text-gray-600">
-              {currentCategoryId 
-                ? categoryInfo.description 
-                : '发现和分享高质量的AI提示词，与团队协作创建更好的提示词'
-              }
-            </p>
-          </div>
-          
-          {/* 统计信息 */}
-          <div className="text-right">
-            <div className="text-2xl font-bold text-blue-600">
-              {prompts.length}
-            </div>
-            <div className="text-sm text-gray-500">
-              个提示词
-            </div>
-          </div>
-        </div>
-      </div>
 
       {loading ? (
         <div className="text-center py-12">
@@ -134,50 +115,45 @@ const Home: React.FC = () => {
           </Link>
         </div>
       ) : (
-        /* 优化的提示词网格布局 - 响应式3-4列 */
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        /* 优化的提示词网格布局 - 更紧凑的响应式布局 */
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {prompts.map((prompt) => (
             <div 
               key={prompt.id} 
-              className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-blue-200"
+              className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-blue-200 group"
             >
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 flex-1 mr-2">
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="text-base font-medium text-gray-900 line-clamp-2 flex-1 mr-2 leading-snug">
                   {prompt.title}
                 </h3>
-                <div className="flex flex-col gap-1 flex-shrink-0">
-                  {prompt.isTemplate && (
-                    <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full">
-                      模板
-                    </span>
-                  )}
-                  <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <span className="bg-gray-100 text-gray-500 text-xs px-1.5 py-0.5 rounded">
                     v{prompt.version}
                   </span>
                 </div>
               </div>
               
               {prompt.description && (
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
+                <p className="text-gray-600 text-xs mb-3 line-clamp-2 leading-relaxed">
                   {prompt.description}
                 </p>
               )}
               
               {/* 分类显示 - 集成新的分类系统 */}
               {prompt.categoryId && (
-                <div className="mb-3">
+                <div className="mb-2">
                   {(() => {
                     const category = categories.find(cat => cat.id === prompt.categoryId);
                     return category ? (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         <div 
-                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                           style={{ backgroundColor: category.color }}
                         />
-                        <span className="text-xs font-medium text-gray-700">
+                        <span className="text-xs font-medium text-gray-700 truncate">
                           {category.name}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-400">
                           {category.scopeType === 'personal' && '👤'}
                           {category.scopeType === 'team' && '👥'}  
                           {category.scopeType === 'public' && '🌍'}
@@ -186,7 +162,7 @@ const Home: React.FC = () => {
                     ) : (
                       /* 兼容老的字符串分类 */
                       prompt.category && (
-                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                        <span className="bg-blue-100 text-blue-700 text-xs font-medium px-1.5 py-0.5 rounded">
                           {prompt.category}
                         </span>
                       )
@@ -197,17 +173,17 @@ const Home: React.FC = () => {
               
               {/* 标签显示 */}
               {prompt.tags && prompt.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-4">
+                <div className="flex flex-wrap gap-1 mb-2">
                   {prompt.tags.slice(0, 2).map((tag) => (
                     <span
                       key={tag}
-                      className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md"
+                      className="bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded text-xs"
                     >
                       {tag}
                     </span>
                   ))}
                   {prompt.tags.length > 2 && (
-                    <span className="text-gray-400 text-xs px-1">
+                    <span className="text-gray-400 text-xs">
                       +{prompt.tags.length - 2}
                     </span>
                   )}
@@ -215,28 +191,42 @@ const Home: React.FC = () => {
               )}
               
               {/* 作者信息 */}
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-4 pt-2 border-t border-gray-100">
-                <span>by {prompt.user?.username || '匿名'}</span>
-                <span>
+              <div className="flex items-center justify-between text-xs text-gray-400 mb-3 pt-2 border-t border-gray-100">
+                <span className="truncate mr-1">by {prompt.user?.username || '匿名'}</span>
+                <span className="flex-shrink-0">
                   {(() => {
                     const dateStr = prompt.updatedAt || prompt.createdAt;
-                    if (!dateStr) return '未知时间';
+                    if (!dateStr) return '未知';
                     try {
-                      return new Date(dateStr).toLocaleDateString();
+                      return new Date(dateStr).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
                     } catch {
-                      return '未知时间';
+                      return '未知';
                     }
                   })()}
                 </span>
               </div>
               
-              {/* 查看按钮 */}
-              <Link
-                to={`/prompts/${prompt.id}`}
-                className="block w-full text-center bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2.5 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium"
-              >
-                查看详情
-              </Link>
+              {/* 查看按钮和复制按钮 */}
+              <div className="flex gap-2">
+                <Link
+                  to={`/prompts/${prompt.id}`}
+                  className="flex-1 text-center bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-xs font-medium"
+                >
+                  查看详情
+                </Link>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(prompt.content || prompt.title);
+                    // TODO: 添加复制成功提示
+                  }}
+                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors group"
+                  title="复制内容"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </div>
             </div>
           ))}
         </div>

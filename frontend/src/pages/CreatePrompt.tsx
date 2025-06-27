@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LazyPromptEditor from '../components/LazyPromptEditor';
 import { promptsAPI } from '../services/api';
@@ -10,6 +10,7 @@ const CreatePrompt: React.FC = () => {
   usePageTitle('Create Prompt');
   
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,28 +23,20 @@ const CreatePrompt: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Check for selected template from localStorage
+  // 处理URL参数
   useEffect(() => {
-    const selectedTemplate = localStorage.getItem('selected-template');
-    if (selectedTemplate) {
-      try {
-        const template = JSON.parse(selectedTemplate);
-        setInitialData({
-          title: template.name,
-          content: template.content,
-          description: template.description,
-          category: template.category,
-          tags: template.tags,
-          isTemplate: false,
-          isPublic: false
-        });
-        // Clear the stored template
-        localStorage.removeItem('selected-template');
-      } catch (error) {
-        console.error('Error parsing selected template:', error);
-      }
+    // 从URL参数获取categoryId
+    const categoryIdParam = searchParams.get('categoryId');
+    const categoryId = categoryIdParam ? parseInt(categoryIdParam) : undefined;
+    
+    if (categoryId) {
+      // 设置默认数据
+      setInitialData({
+        categoryId: categoryId,
+        isPublic: false
+      });
     }
-  }, []);
+  }, [searchParams]);
 
   const handleSave = async (data: CreatePromptRequest) => {
     try {

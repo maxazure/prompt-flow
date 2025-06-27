@@ -1,9 +1,7 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
 import PromptEditor from '../components/PromptEditor';
-import { CategoryProvider } from '../context/CategoryContext';
 
 // Mock Monaco Editor
 vi.mock('@monaco-editor/react', () => ({
@@ -111,10 +109,6 @@ vi.mock('../context/CategoryContext', async () => {
   };
 });
 
-// Simple test wrapper without CategoryProvider since we're mocking useCategory
-const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return children as React.ReactElement;
-};
 
 describe('PromptEditor', () => {
   const mockOnSave = vi.fn();
@@ -134,13 +128,12 @@ describe('PromptEditor', () => {
     );
 
     expect(screen.getByText('Create New Prompt')).toBeInTheDocument();
-    expect(screen.getByText('Start with a Template')).toBeInTheDocument();
     expect(screen.getByText('Basic Information')).toBeInTheDocument();
     expect(screen.getByText('Prompt Content *')).toBeInTheDocument();
     expect(screen.getByText('Settings')).toBeInTheDocument();
   });
 
-  it('displays template presets', () => {
+  it('renders form fields correctly', () => {
     render(
       <PromptEditor 
         onSave={mockOnSave} 
@@ -148,13 +141,12 @@ describe('PromptEditor', () => {
       />
     );
 
-    expect(screen.getByText('Website Generator')).toBeInTheDocument();
-    expect(screen.getByText('API Documentation')).toBeInTheDocument();
-    expect(screen.getByText('Code Review Template')).toBeInTheDocument();
-    expect(screen.getByText('Blog Post Generator')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Enter a descriptive title for your prompt')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('选择分类')).toBeInTheDocument();
+    expect(screen.getByTestId('monaco-editor')).toBeInTheDocument();
   });
 
-  it('allows selecting a template', async () => {
+  it('allows editing form content', async () => {
     render(
       <PromptEditor 
         onSave={mockOnSave} 
@@ -162,17 +154,17 @@ describe('PromptEditor', () => {
       />
     );
 
-    const websiteTemplate = screen.getByText('Website Generator');
-    fireEvent.click(websiteTemplate);
+    const titleInput = screen.getByPlaceholderText('Enter a descriptive title for your prompt');
+    fireEvent.change(titleInput, { target: { value: 'Test Title' } });
 
     await waitFor(() => {
-      const titleInput = screen.getByDisplayValue('Website Generator');
-      expect(titleInput).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Test Title')).toBeInTheDocument();
     });
 
-    // Check that the template content is loaded
-    const editor = screen.getByTestId('monaco-editor');
-    expect(editor.value).toContain('Create a modern, responsive website');
+    // Check that the editor content can be changed
+    const editor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+    fireEvent.change(editor, { target: { value: 'Test content' } });
+    expect(editor.value).toContain('Test content');
   });
 
   it('validates required fields', async () => {
@@ -253,7 +245,6 @@ describe('PromptEditor', () => {
         category: undefined,
         categoryId: 1,
         tags: [],
-        isTemplate: false,
         isPublic: false,
       });
     });
@@ -283,7 +274,6 @@ describe('PromptEditor', () => {
       description: 'Existing description',
       categoryId: 1,
       tags: ['existing', 'tags'],
-      isTemplate: true,
       isPublic: true,
     };
 

@@ -24,5 +24,11 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/performance/**/*",
+    "src/bundle/**/*",
+    "src/**/*.performance.ts",
+    "src/**/*.bundle.ts"
+  ]
 }

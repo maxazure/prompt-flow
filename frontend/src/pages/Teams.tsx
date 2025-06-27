@@ -4,12 +4,14 @@ import { teamsAPI } from '../services/api';
 import { TeamRole } from '../types';
 import type { Team, CreateTeamRequest, InviteMemberRequest } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useCategory } from '../context/CategoryContext';
 import usePageTitle from '../hooks/usePageTitle';
 
 const Teams: React.FC = () => {
   usePageTitle('Teams');
   
   const { user } = useAuth();
+  const { selectedCategory, categories } = useCategory();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -129,15 +131,62 @@ const Teams: React.FC = () => {
     );
   }
 
+  // 获取当前选中分类的显示名称
+  const getSelectedCategoryName = () => {
+    if (!selectedCategory) return '所有团队';
+    const category = categories.find(cat => cat.id.toString() === selectedCategory);
+    return category ? category.name : '所有团队';
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Teams</h1>
+    <div className="px-6 py-6">
+      {/* 面包屑导航 */}
+      <nav className="mb-6">
+        <ol className="flex items-center space-x-2 text-sm text-gray-500">
+          <li>
+            <a href="/" className="hover:text-blue-600">首页</a>
+          </li>
+          <li>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </li>
+          <li>
+            <span className="text-gray-900 font-medium">团队</span>
+          </li>
+          {selectedCategory && (
+            <>
+              <li>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </li>
+              <li>
+                <span className="text-blue-600 font-medium">{getSelectedCategoryName()}</span>
+              </li>
+            </>
+          )}
+        </ol>
+      </nav>
+
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            {selectedCategory ? `${getSelectedCategoryName()} 团队` : '团队管理'}
+          </h1>
+          <p className="text-gray-600">
+            {selectedCategory 
+              ? `管理 ${getSelectedCategoryName()} 分类下的团队`
+              : '管理您的团队和协作成员'
+            }
+          </p>
+        </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
         >
-          Create Team
+          创建团队
         </button>
       </div>
 
@@ -147,14 +196,23 @@ const Teams: React.FC = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Teams List */}
-        <div className="lg:col-span-1">
-          <div className="bg-white shadow rounded-lg">
+        <div className="xl:col-span-1">
+          <div className="bg-white shadow-sm rounded-lg border border-gray-200">
             <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Your Teams</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">我的团队</h3>
               {teams.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No teams found</p>
+                <div className="text-center py-8">
+                  <div className="text-4xl mb-3">👥</div>
+                  <p className="text-gray-500 mb-4">暂无团队</p>
+                  <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                  >
+                    创建您的第一个团队
+                  </button>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {teams.map(team => (
@@ -174,7 +232,7 @@ const Teams: React.FC = () => {
                             <p className="text-sm text-gray-500 mt-1">{team.description}</p>
                           )}
                           <p className="text-xs text-gray-400 mt-2">
-                            {team.members?.length || 0} members
+                            {team.members?.length || 0} 成员
                           </p>
                         </div>
                         <div className="flex flex-col space-y-2">
@@ -207,9 +265,9 @@ const Teams: React.FC = () => {
         </div>
 
         {/* Team Details */}
-        <div className="lg:col-span-2">
+        <div className="xl:col-span-2">
           {selectedTeam ? (
-            <div className="bg-white shadow rounded-lg">
+            <div className="bg-white shadow-sm rounded-lg border border-gray-200">
               <div className="px-4 py-5 sm:p-6">
                 <div className="flex justify-between items-start mb-6">
                   <div>
@@ -221,15 +279,15 @@ const Teams: React.FC = () => {
                   {canManageTeam(selectedTeam) && (
                     <button
                       onClick={() => setShowInviteModal(true)}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
                     >
-                      Invite Member
+                      邀请成员
                     </button>
                   )}
                 </div>
 
                 <div>
-                  <h4 className="text-md font-medium text-gray-900 mb-4">Members</h4>
+                  <h4 className="text-md font-medium text-gray-900 mb-4">团队成员</h4>
                   {selectedTeam.members && selectedTeam.members.length > 0 ? (
                     <div className="space-y-3">
                       {selectedTeam.members.map(member => (
@@ -267,15 +325,20 @@ const Teams: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-500 text-center py-8">No members found</p>
+                    <div className="text-center py-8">
+                      <div className="text-4xl mb-3">👤</div>
+                      <p className="text-gray-500">暂无成员</p>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6 text-center">
-                <p className="text-gray-500">Select a team to view details</p>
+            <div className="bg-white shadow-sm rounded-lg border border-gray-200">
+              <div className="px-4 py-5 sm:p-6 text-center py-16">
+                <div className="text-6xl mb-4">🏢</div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">选择团队</h3>
+                <p className="text-gray-500">从左侧列表中选择一个团队查看详情</p>
               </div>
             </div>
           )}
@@ -287,12 +350,12 @@ const Teams: React.FC = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="px-6 py-4 border-b">
-              <h3 className="text-lg font-medium text-gray-900">Create New Team</h3>
+              <h3 className="text-lg font-medium text-gray-900">创建新团队</h3>
             </div>
             <form onSubmit={handleCreateTeam} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Team Name *
+                  团队名称 *
                 </label>
                 <input
                   type="text"
@@ -304,7 +367,7 @@ const Teams: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
+                  团队描述
                 </label>
                 <textarea
                   value={createTeamData.description}
@@ -319,13 +382,13 @@ const Teams: React.FC = () => {
                   onClick={() => setShowCreateModal(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                 >
-                  Cancel
+                  取消
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
                 >
-                  Create Team
+                  创建团队
                 </button>
               </div>
             </form>
@@ -338,12 +401,12 @@ const Teams: React.FC = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="px-6 py-4 border-b">
-              <h3 className="text-lg font-medium text-gray-900">Invite Member</h3>
+              <h3 className="text-lg font-medium text-gray-900">邀请成员</h3>
             </div>
             <form onSubmit={handleInviteMember} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address *
+                  邮箱地址 *
                 </label>
                 <input
                   type="email"
@@ -355,16 +418,16 @@ const Teams: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Role
+                  角色
                 </label>
                 <select
                   value={inviteData.role}
                   onChange={(e) => setInviteData({ ...inviteData, role: e.target.value as TeamRole })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
-                  <option value={TeamRole.VIEWER}>Viewer</option>
-                  <option value={TeamRole.EDITOR}>Editor</option>
-                  <option value={TeamRole.ADMIN}>Admin</option>
+                  <option value={TeamRole.VIEWER}>查看者</option>
+                  <option value={TeamRole.EDITOR}>编辑者</option>
+                  <option value={TeamRole.ADMIN}>管理员</option>
                 </select>
               </div>
               <div className="flex justify-end space-x-3 pt-4">
@@ -373,13 +436,13 @@ const Teams: React.FC = () => {
                   onClick={() => setShowInviteModal(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                 >
-                  Cancel
+                  取消
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
                 >
-                  Send Invite
+                  发送邀请
                 </button>
               </div>
             </form>

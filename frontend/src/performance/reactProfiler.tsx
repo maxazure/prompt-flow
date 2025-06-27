@@ -1,6 +1,6 @@
 // React component performance testing and re-render optimization
-import React, { Profiler, ProfilerOnRenderCallback, useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { RenderMetrics, ComponentPerformanceData } from './types';
+import React, { Profiler, type ProfilerOnRenderCallback, useCallback, useMemo, useRef, useEffect } from 'react';
+import type { RenderMetrics, ComponentPerformanceData } from './types';
 
 export interface ComponentProfilerData {
   componentName: string;

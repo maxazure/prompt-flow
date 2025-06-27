@@ -223,14 +223,31 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
         categoriesAPI.getCategoryStats().catch(() => ({ stats: null }))
       ]);
 
-      dispatch({ type: 'SET_CATEGORIES', payload: categoriesResult.categories });
+      // Handle different API response formats
+      let allCategories: Category[] = [];
+      if (categoriesResult.categories) {
+        if (Array.isArray(categoriesResult.categories)) {
+          // If categories is already an array, use it directly
+          allCategories = categoriesResult.categories;
+        } else if (typeof categoriesResult.categories === 'object') {
+          // If categories is grouped object, flatten it
+          const grouped = categoriesResult.categories as any;
+          allCategories = [
+            ...(grouped.personal || []),
+            ...(grouped.team || []),
+            ...(grouped.public || [])
+          ];
+        }
+      }
+
+      dispatch({ type: 'SET_CATEGORIES', payload: allCategories });
       dispatch({ type: 'SET_LAST_FETCH_TIME', payload: now });
       
       if (statsResult.stats) {
         dispatch({ type: 'SET_STATS', payload: statsResult.stats });
       }
       
-      console.log(`✅ Loaded ${categoriesResult.categories.length} categories successfully`);
+      console.log(`✅ Loaded ${allCategories.length} categories successfully`);
     } catch (error: any) {
       console.error('❌ Failed to load categories:', error);
       
@@ -242,7 +259,7 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
         errorMessage = 'Please log in to see all categories.';
         // Only show public categories for unauthenticated users
         dispatch({ type: 'SET_CATEGORIES', payload: [] });
-        dispatch({ type: 'SET_LAST_FETCH_TIME', payload: now });
+        dispatch({ type: 'SET_LAST_FETCH_TIME', payload: Date.now() });
         return; // Don't set error state, just continue with empty categories
       } else if (error?.response?.status === 403) {
         errorMessage = 'You do not have permission to access categories.';

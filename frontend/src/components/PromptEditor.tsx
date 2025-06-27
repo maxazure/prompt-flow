@@ -12,155 +12,6 @@ interface PromptEditorProps {
   loading?: boolean;
 }
 
-interface TemplatePreset {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  content: string;
-  tags: string[];
-}
-
-const templatePresets: TemplatePreset[] = [
-  {
-    id: 'website-generator',
-    name: 'Website Generator',
-    description: 'Generate a complete website structure',
-    category: 'web-development',
-    content: `Create a modern, responsive website for {company_name} with the following requirements:
-
-**Website Structure:**
-- Header with navigation menu
-- Hero section with call-to-action
-- About section
-- Services/Products section  
-- Contact form
-- Footer with social links
-
-**Technical Requirements:**
-- Responsive design (mobile-first)
-- Modern CSS/HTML5
-- SEO optimized
-- Fast loading times
-
-**Content Guidelines:**
-- Brand colors: {brand_colors}
-- Target audience: {target_audience}
-- Key message: {key_message}
-
-Please provide complete HTML, CSS, and basic JavaScript code.`,
-    tags: ['html', 'css', 'responsive', 'website']
-  },
-  {
-    id: 'api-documentation',
-    name: 'API Documentation',
-    description: 'Generate comprehensive API documentation',
-    category: 'documentation',
-    content: `Generate comprehensive API documentation for {api_name}:
-
-**Overview:**
-- API purpose and functionality
-- Base URL: {base_url}
-- Authentication method: {auth_method}
-- Rate limiting: {rate_limit}
-
-**Endpoints:**
-For each endpoint, include:
-- HTTP method and path
-- Description and purpose
-- Request parameters (required/optional)
-- Request body schema
-- Response format and status codes
-- Example requests and responses
-- Error handling
-
-**Authentication:**
-- Describe authentication flow
-- Include example headers
-- Token refresh process
-
-**SDKs and Libraries:**
-- Available client libraries
-- Installation instructions
-- Basic usage examples
-
-Please format as clear, developer-friendly documentation.`,
-    tags: ['api', 'documentation', 'rest', 'openapi']
-  },
-  {
-    id: 'code-review',
-    name: 'Code Review Template',
-    description: 'Systematic code review checklist',
-    category: 'development',
-    content: `Perform a comprehensive code review for the following {language} code:
-
-**Code Quality Checklist:**
-- [ ] Code follows established style guidelines
-- [ ] Functions are properly named and documented
-- [ ] Code is DRY (Don't Repeat Yourself)
-- [ ] Proper error handling implemented
-- [ ] Security considerations addressed
-
-**Performance Review:**
-- [ ] Algorithms are efficient
-- [ ] Database queries optimized
-- [ ] Memory usage reasonable
-- [ ] No obvious bottlenecks
-
-**Testing & Maintainability:**
-- [ ] Code is testable
-- [ ] Unit tests present and comprehensive
-- [ ] Code is readable and maintainable
-- [ ] Dependencies are minimal and justified
-
-**Security Review:**
-- [ ] Input validation implemented
-- [ ] No hardcoded secrets
-- [ ] Proper authentication/authorization
-- [ ] SQL injection protection
-
-Please review this code and provide detailed feedback:
-
-{code_snippet}`,
-    tags: ['code-review', 'quality', 'security', 'testing']
-  },
-  {
-    id: 'blog-post',
-    name: 'Blog Post Generator',
-    description: 'Create engaging blog content',
-    category: 'content',
-    content: `Write a comprehensive blog post about {topic}:
-
-**Article Structure:**
-- Compelling headline (60 characters max)
-- Hook opening paragraph
-- 3-5 main sections with subheadings
-- Conclusion with call-to-action
-- Meta description (150 characters)
-
-**Content Requirements:**
-- Target audience: {target_audience}
-- Tone: {tone} (professional/casual/technical)
-- Word count: {word_count}
-- Include relevant examples
-- Add actionable insights
-
-**SEO Optimization:**
-- Primary keyword: {primary_keyword}
-- Secondary keywords: {secondary_keywords}
-- Include internal and external links
-- Optimize for featured snippets
-
-**Engagement Elements:**
-- Add relevant images/charts suggestions
-- Include quotable statements
-- Create discussion questions
-- Suggest social media snippets
-
-Please create engaging, valuable content that ranks well and drives engagement.`,
-    tags: ['blog', 'content', 'seo', 'marketing']
-  }
-];
 
 const PromptEditor: React.FC<PromptEditorProps> = ({
   initialData,
@@ -177,13 +28,11 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
     category: initialData?.category || '',        // 向后兼容
     categoryId: initialData?.categoryId || undefined,  // 新字段
     tags: initialData?.tags || [],
-    isTemplate: initialData?.isTemplate || false,
     isPublic: initialData?.isPublic || false,
   });
 
   const [tagInput, setTagInput] = useState('');
   const [showPreview, setShowPreview] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const editorRef = useRef<any>(null);
 
@@ -303,21 +152,6 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
     }
   };
 
-  const handleTemplateSelect = (templateId: string) => {
-    const template = templatePresets.find(t => t.id === templateId);
-    if (template) {
-      setFormData(prev => ({
-        ...prev,
-        title: template.name,
-        content: template.content,
-        description: template.description,
-        category: template.category,
-        tags: template.tags,
-        isTemplate: true,
-      }));
-      setSelectedTemplate(templateId);
-    }
-  };
 
   const addTag = () => {
     if (tagInput.trim() && !formData.tags?.includes(tagInput.trim())) {
@@ -388,36 +222,6 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
         </p>
       </div>
 
-      {/* Template Selector */}
-      {!isEditing && (
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Start with a Template</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {templatePresets.map(template => (
-              <button
-                key={template.id}
-                onClick={() => handleTemplateSelect(template.id)}
-                className={`p-4 text-left border rounded-lg hover:border-blue-500 transition-colors ${
-                  selectedTemplate === template.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-                }`}
-              >
-                <h3 className="font-medium text-gray-900">{template.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">{template.description}</p>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {template.tags.slice(0, 2).map(tag => (
-                    <span
-                      key={tag}
-                      className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className={`grid ${showPreview ? 'grid-cols-2' : 'grid-cols-1'} gap-6`}>
@@ -630,15 +434,6 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
               
               <div className="space-y-4">
                 <div className="flex items-center space-x-4">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={formData.isTemplate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, isTemplate: e.target.checked }))}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">Mark as Template</span>
-                  </label>
                   
                   <label className="flex items-center">
                     <input

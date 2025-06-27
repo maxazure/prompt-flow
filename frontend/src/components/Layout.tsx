@@ -33,12 +33,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   Public Prompts
                 </Link>
-                <Link
-                  to="/templates"
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Templates
-                </Link>
                 {isAuthenticated && (
                   <>
                     <Link

@@ -1,10 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import MainLayout from '../components/MainLayout';
 import { CategoryProvider } from '../context/CategoryContext';
+import { AuthProvider } from '../context/AuthContext';
 import { Breakpoints } from '../types';
 import type { CategoryContextType } from '../types';
 
@@ -50,6 +51,18 @@ vi.mock('../components/CategorySidebar', () => ({
       Sidebar Content
     </aside>
   ),
+}));
+
+// Mock AuthContext
+vi.mock('../context/AuthContext', () => ({
+  useAuth: vi.fn(() => ({
+    user: { id: 1, username: 'testuser', email: 'test@example.com' },
+    token: 'mock-token',
+    login: vi.fn(),
+    logout: vi.fn(),
+    isAuthenticated: true,
+  })),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 // Mock useCategory hook
@@ -116,9 +129,11 @@ const renderMainLayout = (
 
   return render(
     <BrowserRouter>
-      <MainLayout className={className}>
-        {children}
-      </MainLayout>
+      <AuthProvider>
+        <MainLayout className={className}>
+          {children}
+        </MainLayout>
+      </AuthProvider>
     </BrowserRouter>
   );
 };
@@ -229,10 +244,11 @@ describe('MainLayout Component', () => {
       renderMainLayout(undefined, '', { sidebarCollapsed: false });
 
       const mainContent = screen.getByRole('main');
-      const computedStyle = window.getComputedStyle(mainContent);
       
       // 在桌面端，主内容区域应该调整宽度和边距
-      expect(mainContent).toHaveClass('fixed', 'top-0', 'right-0');
+      expect(mainContent).toHaveClass('fixed', 'right-0');
+      // Check that styles are applied correctly
+      expect(mainContent).toHaveStyle({ top: '64px' });
     });
   });
 
@@ -405,7 +421,8 @@ describe('MainLayout Component', () => {
       renderMainLayout();
 
       const mainContent = screen.getByRole('main');
-      expect(mainContent).toHaveClass('fixed', 'top-0', 'right-0');
+      expect(mainContent).toHaveClass('fixed', 'right-0');
+      expect(mainContent).toHaveStyle({ top: '64px' });
     });
 
     it('calculates content width based on sidebar width', () => {
@@ -629,7 +646,7 @@ describe('MainLayout Component', () => {
     it('maintains proper z-index stacking', () => {
       renderMainLayout();
 
-      const contentInner = document.querySelector('.main-content-inner');
+      document.querySelector('.main-content-inner');
       
       const styleElements = document.getElementsByTagName('style');
       const styleContent = Array.from(styleElements)

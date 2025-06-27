@@ -1,5 +1,5 @@
 // Performance reporting and analytics utilities
-import { 
+import type { 
   PerformanceReport, 
   PerformanceMetrics, 
   MemoryMetrics, 

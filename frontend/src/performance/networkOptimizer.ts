@@ -1,5 +1,5 @@
 // Network request optimization and testing utilities
-import { NetworkMetrics } from './types';
+import type { NetworkMetrics } from './types';
 
 export interface NetworkOptimizationTest {
   name: string;

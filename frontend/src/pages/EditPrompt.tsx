@@ -73,7 +73,6 @@ const EditPrompt: React.FC = () => {
         data.description !== prompt.description ||
         data.category !== prompt.category ||
         JSON.stringify(data.tags) !== JSON.stringify(prompt.tags) ||
-        data.isTemplate !== prompt.isTemplate ||
         data.isPublic !== prompt.isPublic;
 
       if (hasContentChanged) {
@@ -177,7 +176,6 @@ const EditPrompt: React.FC = () => {
           description: prompt.description || '',
           category: prompt.category || '',
           tags: prompt.tags || [],
-          isTemplate: prompt.isTemplate,
           isPublic: prompt.isPublic,
         }}
         onSave={handleSave}

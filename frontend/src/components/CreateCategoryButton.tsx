@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCategory } from '../context/CategoryContext';
+import { useAuth } from '../context/AuthContext';
 import ColorPicker from './ColorPicker';
 import { CategoryScope, CategoryColors } from '../types';
 
@@ -10,6 +11,7 @@ import { CategoryScope, CategoryColors } from '../types';
 interface CreateCategoryButtonProps {
   collapsed?: boolean;
   className?: string;
+  onComplete?: () => void;
 }
 
 interface CreateCategoryFormData {
@@ -32,8 +34,15 @@ interface CreateCategoryFormData {
 const CreateCategoryButton: React.FC<CreateCategoryButtonProps> = ({
   collapsed = false,
   className = '',
+  onComplete,
 }) => {
+  const { isAuthenticated } = useAuth();
   const { createCategory, loading } = useCategory();
+
+  // 如果用户未登录，不显示创建分类按钮
+  if (!isAuthenticated) {
+    return null;
+  }
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState<CreateCategoryFormData>({
     name: '',
@@ -104,6 +113,11 @@ const CreateCategoryButton: React.FC<CreateCategoryButtonProps> = ({
       
       // 成功后关闭表单
       handleCloseForm();
+      
+      // 调用完成回调
+      if (onComplete) {
+        onComplete();
+      }
     } catch (error) {
       console.error('Create category failed:', error);
       setErrors({ name: '创建分类失败，请重试' });

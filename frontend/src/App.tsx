@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CategoryProvider } from './context/CategoryContext';
+import { SearchProvider } from './context/SearchContext';
 import Layout from './components/Layout';
 import MainLayout from './components/MainLayout';
 import Home from './pages/Home';
@@ -11,7 +12,6 @@ import PromptDetail from './pages/PromptDetail';
 import Dashboard from './pages/Dashboard';
 import CreatePrompt from './pages/CreatePrompt';
 import EditPrompt from './pages/EditPrompt';
-import Templates from './pages/Templates';
 import Teams from './pages/Teams';
 import TeamDetail from './pages/TeamDetail';
 import Insights from './pages/Insights';
@@ -23,7 +23,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 // 使用新布局的页面列表 (分类系统集成页面)
-const MAIN_LAYOUT_PAGES = ['/', '/dashboard', '/category'];
+const MAIN_LAYOUT_PAGES = ['/', '/dashboard', '/category', '/teams', '/insights', '/prompts'];
 
 // 布局选择组件
 const LayoutSelector: React.FC<{ children: React.ReactNode; path: string }> = ({ 
@@ -46,7 +46,8 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <CategoryProvider>
+        <SearchProvider>
+          <CategoryProvider>
           <Routes>
             {/* 使用新MainLayout的页面 */}
             <Route 
@@ -94,19 +95,11 @@ function App() {
               } 
             />
             <Route 
-              path="/templates" 
-              element={
-                <Layout>
-                  <Templates />
-                </Layout>
-              } 
-            />
-            <Route 
               path="/prompts/:id" 
               element={
-                <Layout>
+                <LayoutSelector path="/prompts">
                   <PromptDetail />
-                </Layout>
+                </LayoutSelector>
               } 
             />
             <Route
@@ -133,9 +126,9 @@ function App() {
               path="/teams"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <LayoutSelector path="/teams">
                     <Teams />
-                  </Layout>
+                  </LayoutSelector>
                 </ProtectedRoute>
               }
             />
@@ -153,14 +146,15 @@ function App() {
               path="/insights"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <LayoutSelector path="/insights">
                     <Insights />
-                  </Layout>
+                  </LayoutSelector>
                 </ProtectedRoute>
               }
             />
           </Routes>
-        </CategoryProvider>
+          </CategoryProvider>
+        </SearchProvider>
       </Router>
     </AuthProvider>
   );

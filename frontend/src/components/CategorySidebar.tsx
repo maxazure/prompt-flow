@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useCategory } from '../context/CategoryContext';
+import { useSearch } from '../context/SearchContext';
 import { CategoryScope } from '../types';
 import CategoryGroup from './CategoryGroup';
 import SearchInput from './SearchInput';
 import CreateCategoryButton from './CreateCategoryButton';
+import { useNavigate } from 'react-router-dom';
 
 // =====================================================
 // CategorySidebar Component - Phase 4 Core Navigation
@@ -33,10 +35,12 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
     retryLastOperation 
   } = useCategory();
   
-  const [searchTerm, setSearchTerm] = useState('');
+  const { searchTerm, setSearchTerm, clearSearch } = useSearch();
+  const navigate = useNavigate();
   const [expandedGroups, setExpandedGroups] = useState(
     new Set(['personal', 'team', 'public'])
   );
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   // 切换分组展开状态
   const toggleGroup = (groupName: string) => {
@@ -49,18 +53,6 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
     setExpandedGroups(newExpanded);
   };
 
-  // 根据搜索词过滤分类
-  const filterCategories = (categoryList: typeof categories) => {
-    if (!searchTerm.trim()) {
-      return categoryList;
-    }
-    
-    const lowerSearchTerm = searchTerm.toLowerCase().trim();
-    return categoryList.filter(category =>
-      category.name.toLowerCase().includes(lowerSearchTerm) ||
-      category.description?.toLowerCase().includes(lowerSearchTerm)
-    );
-  };
 
   // 分组图标和标题映射
   const groupConfig = {
@@ -97,9 +89,9 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
             <>
               {/* Logo和标题 */}
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  分类管理
-                </h2>
+                <h1 className="text-xl font-bold text-gray-900">
+                  PromptFlow
+                </h1>
                 {!isMobile && (
                   <button
                     onClick={onToggle}
@@ -113,12 +105,12 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
                 )}
               </div>
 
-              {/* 搜索框 */}
+              {/* 提示词搜索框 */}
               <SearchInput
                 value={searchTerm}
                 onSearch={setSearchTerm}
-                onClear={() => setSearchTerm('')}
-                placeholder="搜索分类..."
+                onClear={() => clearSearch()}
+                placeholder="搜索提示词..."
                 debounceMs={300}
               />
             </>
@@ -174,36 +166,38 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
 
           {!loading && !error && (
             <>
-              {/* 全部分类选项 */}
-              <div className="p-2">
-                <button
-                  onClick={() => selectCategory(null)}
-                  className={`
-                    w-full px-3 py-2 text-left rounded-lg transition-colors
-                    ${selectedCategory === null 
-                      ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-500' 
-                      : 'text-gray-700 hover:bg-gray-50'
-                    }
-                  `}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-base">📚</span>
-                    {!collapsed && (
-                      <>
-                        <span className="font-medium">全部分类</span>
-                        <span className="ml-auto text-xs bg-gray-100 px-2 py-1 rounded-full">
-                          {categories.length}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </button>
-              </div>
+              {/* 悬浮新增分类按钮 */}
+              {!collapsed && (
+                <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 p-3">
+                  <button
+                    className="w-full px-3 py-2 bg-blue-50 text-blue-600 rounded-md
+                               hover:bg-blue-100 transition-colors flex items-center gap-2 text-sm
+                               focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onClick={() => setShowCreateForm(!showCreateForm)}
+                    title="新增分类"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    新增分类
+                  </button>
+                  
+                  {/* 内联创建分类表单 */}
+                  {showCreateForm && (
+                    <div className="mt-3">
+                      <CreateCategoryButton 
+                        collapsed={false}
+                        className="w-full"
+                        onComplete={() => setShowCreateForm(false)}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* 分类分组 */}
               {Object.entries(groupConfig).map(([key, config]) => {
                 const scopeCategories = categories.filter(cat => cat.scopeType === config.scope);
-                const filteredCategories = filterCategories(scopeCategories);
                 const isExpanded = expandedGroups.has(key);
                 
                 return (
@@ -212,7 +206,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
                     groupKey={key}
                     groupTitle={config.title}
                     groupIcon={config.icon}
-                    categories={filteredCategories}
+                    categories={scopeCategories}
                     isExpanded={isExpanded}
                     selectedCategory={selectedCategory}
                     collapsed={collapsed}
@@ -225,13 +219,37 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
           )}
         </div>
 
-        {/* 底部操作区域 */}
+        {/* 底部操作区域 - 设置按钮 */}
         {!isMobile && (
           <div className="sidebar-footer border-t border-gray-200 p-4">
-            <CreateCategoryButton 
-              collapsed={collapsed}
-              className="w-full"
-            />
+            {collapsed ? (
+              <button
+                className="w-full p-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors
+                           focus:outline-none focus:ring-2 focus:ring-gray-500"
+                onClick={() => navigate('/settings')}
+                title="设置"
+              >
+                <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+            ) : (
+              <button
+                className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-lg 
+                           hover:bg-gray-100 transition-colors flex items-center gap-2 text-sm
+                           focus:outline-none focus:ring-2 focus:ring-gray-500"
+                onClick={() => navigate('/settings')}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                设置
+              </button>
+            )}
           </div>
         )}
       </aside>

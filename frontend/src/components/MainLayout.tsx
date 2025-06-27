@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useCategory } from '../context/CategoryContext';
 import CategorySidebar from './CategorySidebar';
+import TopNavigation from './TopNavigation';
 import { Breakpoints } from '../types';
 
 // =====================================================
@@ -76,6 +77,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, className = '' }) => 
         onToggle={toggleSidebar}
       />
 
+      {/* 顶部导航栏 - 仅在非移动端显示 */}
+      {!isMobile && (
+        <TopNavigation 
+          className="left-0"
+          style={{
+            left: getSidebarWidth(),
+            width: `calc(100vw - ${getSidebarWidth()})`,
+          }}
+        />
+      )}
+
       {/* 移动端遮罩层 */}
       {isMobile && !sidebarCollapsed && (
         <div 
@@ -89,12 +101,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, className = '' }) => 
         className={`
           main-content
           transition-all duration-300 ease-in-out
-          ${isMobile ? 'relative' : 'fixed top-0 right-0'}
+          ${isMobile ? 'relative' : 'fixed right-0'}
           h-full
           overflow-hidden
           ${className}
         `}
-        style={getMainContentStyle()}
+        style={{
+          ...getMainContentStyle(),
+          top: isMobile ? '0' : '64px', // 为顶部导航栏留出空间
+          height: isMobile ? '100%' : 'calc(100vh - 64px)',
+        }}
       >
         {/* 内容容器 */}
         <div className="content-container h-full overflow-y-auto">

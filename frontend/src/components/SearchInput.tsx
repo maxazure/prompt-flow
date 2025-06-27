@@ -25,7 +25,7 @@ interface SearchInputProps {
  * - 📱 无障碍设计支持
  */
 const SearchInput: React.FC<SearchInputProps> = ({
-  placeholder = '搜索分类...',
+  placeholder = '搜索提示词...',
   value: controlledValue,
   onSearch,
   onClear,
@@ -179,7 +179,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         onBlur={handleBlur}
         disabled={disabled}
         className={getInputClassName()}
-        aria-label="搜索分类"
+        aria-label="搜索提示词"
         aria-describedby="search-help"
       />
       
@@ -211,7 +211,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
       
       {/* 无障碍帮助文本 */}
       <div id="search-help" className="sr-only">
-        输入关键词搜索分类，按Escape键清除搜索内容
+        输入关键词搜索提示词标题、描述和内容，按Escape键清除搜索内容
       </div>
     </div>
   );

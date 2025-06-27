@@ -12,7 +12,6 @@ export interface Prompt {
   content: string;
   description?: string;
   version: number;
-  isTemplate: boolean;
   category?: string; // 保留向后兼容
   categoryId?: number; // 新的分类关联
   tags?: string[];
@@ -50,7 +49,6 @@ export interface CreatePromptRequest {
   category?: string;        // 保持向后兼容
   categoryId?: number;      // 新的分类ID字段
   tags?: string[];
-  isTemplate?: boolean;
   isPublic?: boolean;
   teamId?: number;
 }
@@ -62,7 +60,6 @@ export interface UpdatePromptRequest {
   category?: string;        // 保持向后兼容
   categoryId?: number;      // 新的分类ID字段
   tags?: string[];
-  isTemplate?: boolean;
   isPublic?: boolean;
   teamId?: number;
 }

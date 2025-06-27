@@ -10,7 +10,6 @@ interface DashboardStats {
   totalPrompts: number;
   privatePrompts: number;
   publicPrompts: number;
-  templates: number;
   totalVersions: number;
   totalCategories: number;
   personalCategories: number;
@@ -28,7 +27,6 @@ const Dashboard: React.FC = () => {
     totalPrompts: 0,
     privatePrompts: 0,
     publicPrompts: 0,
-    templates: 0,
     totalVersions: 0,
     totalCategories: 0,
     personalCategories: 0,
@@ -76,7 +74,6 @@ const Dashboard: React.FC = () => {
       totalPrompts: userPrompts.length,
       privatePrompts: userPrompts.filter(p => !p.isPublic).length,
       publicPrompts: userPrompts.filter(p => p.isPublic).length,
-      templates: userPrompts.filter(p => p.isTemplate).length,
       totalVersions: userPrompts.reduce((sum, p) => sum + (p.version || 1), 0),
       totalCategories,
       personalCategories,
@@ -191,19 +188,6 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-purple-100">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17v4a2 2 0 002 2h4M13 13h4a2 2 0 012 2v4a2 2 0 01-2 2h-4v-8z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Templates</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.templates}</p>
-            </div>
-          </div>
-        </div>
 
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
@@ -301,20 +285,6 @@ const Dashboard: React.FC = () => {
             </div>
           </Link>
 
-          <Link
-            to="/templates"
-            className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors"
-          >
-            <div className="p-2 bg-green-100 rounded-lg">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">Browse Templates</p>
-              <p className="text-xs text-gray-600">Use existing templates</p>
-            </div>
-          </Link>
 
           <button
             onClick={loadUserPrompts}
@@ -444,11 +414,6 @@ const Dashboard: React.FC = () => {
                     {prompt.title}
                   </h3>
                   <div className="flex items-center space-x-2">
-                    {prompt.isTemplate && (
-                      <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                        Template
-                      </span>
-                    )}
                     <span className={`text-xs font-medium px-2 py-1 rounded-full ${
                       prompt.isPublic 
                         ? 'bg-blue-100 text-blue-800' 
