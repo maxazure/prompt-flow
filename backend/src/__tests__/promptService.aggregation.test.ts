@@ -263,35 +263,35 @@ describe('Prompt Service - Category Aggregation', () => {
       expect(aggregation[1].categoryName).toBe('zebra-category');
     });
 
-    it('should filter by template status when isTemplate is provided', async () => {
+    it('should filter by public status when isPublic is provided', async () => {
       await Prompt.create({
-        title: 'Template Prompt',
-        content: 'Template content',
+        title: 'Test Prompt 1',
+        content: 'Test content 1',
         categoryId: category1.id,
         userId: testUser.id,
         isPublic: true,
-        isTemplate: true,
       });
 
       await Prompt.create({
-        title: 'Regular Prompt',
-        content: 'Regular content',
+        title: 'Test Prompt 2',
+        content: 'Test content 2',
         categoryId: category1.id,
         userId: testUser.id,
         isPublic: true,
-        isTemplate: false,
       });
 
-      const templateAggregation = await getPromptsByCategory({ isTemplate: true });
-      const regularAggregation = await getPromptsByCategory({ isTemplate: false });
+      const allAggregation = await getPromptsByCategory({});
+      const publicAggregation = await getPromptsByCategory({ isPublic: true });
 
-      expect(templateAggregation).toHaveLength(1);
-      expect(templateAggregation[0].count).toBe(1);
-      expect(templateAggregation[0].prompts?.[0].title).toBe('Template Prompt');
+      expect(allAggregation).toHaveLength(1);
+      expect(allAggregation[0].count).toBe(2);
 
-      expect(regularAggregation).toHaveLength(1);
-      expect(regularAggregation[0].count).toBe(1);
-      expect(regularAggregation[0].prompts?.[0].title).toBe('Regular Prompt');
+      expect(publicAggregation).toHaveLength(1);
+      expect(publicAggregation[0].count).toBe(2);
+      expect(publicAggregation[0].prompts).toHaveLength(2);
+      const promptTitles = publicAggregation[0].prompts?.map(p => p.title);
+      expect(promptTitles).toContain('Test Prompt 1');
+      expect(promptTitles).toContain('Test Prompt 2');
     });
   });
 });

@@ -6,9 +6,11 @@ import VersionHistory from '../components/VersionHistory';
 import VersionDiff from '../components/VersionDiff';
 import Comments from '../components/Comments';
 import PromptOptimizer from '../components/PromptOptimizer';
+import ParameterizedPromptModal from '../components/ParameterizedPromptModal';
 import { useAuth } from '../context/AuthContext';
 import { useCategory } from '../context/CategoryContext';
 import usePageTitle from '../hooks/usePageTitle';
+import { needsParameters } from '../utils/templateEngine';
 
 const PromptDetail: React.FC = () => {
   usePageTitle('Prompt Details');
@@ -28,6 +30,7 @@ const PromptDetail: React.FC = () => {
   const [reverting, setReverting] = useState(false);
   const [analysis, setAnalysis] = useState<PromptAnalysis | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [isParameterModalOpen, setIsParameterModalOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -133,6 +136,27 @@ const PromptDetail: React.FC = () => {
     } finally {
       setReverting(false);
     }
+  };
+
+  // 处理使用此提示词
+  const handleUsePrompt = () => {
+    setIsParameterModalOpen(true);
+  };
+
+  // 处理参数化模态框复制
+  const handleParameterModalCopy = (_content: string) => {
+    console.log('参数化内容已复制到剪贴板');
+  };
+
+  // 处理保存为新提示词 (未来功能)
+  const handleSaveAsNew = async (content: string, parameters: Record<string, any>) => {
+    console.log('保存为新提示词:', { content, parameters });
+    alert('保存功能开发中...');
+  };
+
+  // 关闭参数化模态框
+  const handleCloseParameterModal = () => {
+    setIsParameterModalOpen(false);
   };
 
   const canEdit = prompt && user && prompt.userId === user.id;
@@ -280,6 +304,19 @@ const PromptDetail: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-3">
+            {/* 使用此提示词按钮 */}
+            <button
+              onClick={handleUsePrompt}
+              className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                needsParameters(prompt.content)
+                  ? 'bg-green-600 text-white hover:bg-green-700'
+                  : 'bg-green-100 text-green-700 hover:bg-green-200'
+              }`}
+              title={needsParameters(prompt.content) ? '填写参数使用此提示词' : '使用此提示词'}
+            >
+              {needsParameters(prompt.content) ? '使用此提示词' : '快速使用'}
+            </button>
+            
             {canEdit && (
               <button
                 onClick={() => navigate(`/prompts/${prompt.id}/edit`)}
@@ -681,6 +718,17 @@ const PromptDetail: React.FC = () => {
             <span>Reverting to selected version...</span>
           </div>
         </div>
+      )}
+
+      {/* 参数化提示词模态框 */}
+      {prompt && (
+        <ParameterizedPromptModal
+          prompt={prompt}
+          isOpen={isParameterModalOpen}
+          onClose={handleCloseParameterModal}
+          onCopy={handleParameterModalCopy}
+          onSaveAsNew={handleSaveAsNew}
+        />
       )}
     </div>
   );

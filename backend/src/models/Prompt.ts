@@ -8,7 +8,6 @@ interface PromptAttributes {
   content: string;
   description?: string;
   version: number;
-  isTemplate: boolean;
   category?: string; // 保留用于向后兼容
   categoryId?: number; // 新的分类关联字段
   tags?: string[];
@@ -20,7 +19,7 @@ interface PromptAttributes {
   updatedAt?: Date;
 }
 
-interface PromptCreationAttributes extends Optional<PromptAttributes, 'id' | 'version' | 'isTemplate' | 'isPublic'> {}
+interface PromptCreationAttributes extends Optional<PromptAttributes, 'id' | 'version' | 'isPublic'> {}
 
 export class Prompt extends Model<PromptAttributes, PromptCreationAttributes> implements PromptAttributes {
   public id!: number;
@@ -28,7 +27,6 @@ export class Prompt extends Model<PromptAttributes, PromptCreationAttributes> im
   public content!: string;
   public description?: string;
   public version!: number;
-  public isTemplate!: boolean;
   public category?: string; // 保留用于向后兼容
   public categoryId?: number; // 新的分类关联字段
   public tags?: string[];
@@ -63,11 +61,6 @@ Prompt.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 1,
-    },
-    isTemplate: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
     },
     category: {
       type: DataTypes.STRING(100),

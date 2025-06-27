@@ -16,13 +16,13 @@ const router: Router = express.Router();
 // GET /api/prompts/my - Get user's own prompts (both public and private)
 router.get('/my', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const { category, categoryId, isTemplate } = req.query;
+    const { category, categoryId, search } = req.query;
     
     const options = {
       userId: req.user!.id,
       category: category as string,
       categoryId: categoryId ? parseInt(categoryId as string) : undefined,
-      isTemplate: isTemplate === 'true' ? true : undefined,
+      search: search as string,
     };
 
     const prompts = await getPrompts(options);
@@ -37,12 +37,12 @@ router.get('/my', authenticateToken, async (req: AuthenticatedRequest, res) => {
 // GET /api/prompts - Get public prompts  
 router.get('/', optionalAuth, async (req: AuthenticatedRequest, res) => {
   try {
-    const { category, categoryId, isTemplate } = req.query;
+    const { category, categoryId, search } = req.query;
     
     const options = {
       category: category as string,
       categoryId: categoryId ? parseInt(categoryId as string) : undefined,
-      isTemplate: isTemplate === 'true' ? true : undefined,
+      search: search as string,
     };
 
     const prompts = await getPrompts(options);

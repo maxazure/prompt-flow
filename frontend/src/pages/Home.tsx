@@ -5,6 +5,8 @@ import { useCategory } from '../context/CategoryContext';
 import { useSearch } from '../context/SearchContext';
 import type { Prompt } from '../types';
 import usePageTitle from '../hooks/usePageTitle';
+import ParameterizedPromptModal from '../components/ParameterizedPromptModal';
+import { needsParameters } from '../utils/templateEngine';
 
 const Home: React.FC = () => {
   usePageTitle('Home');
@@ -14,6 +16,9 @@ const Home: React.FC = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [copySuccess, setCopySuccess] = useState<string | null>(null);
 
   // 确定当前选中的分类ID (来自URL参数或CategoryContext)
   const currentCategoryId = categoryId || selectedCategory;
@@ -68,6 +73,55 @@ const Home: React.FC = () => {
   };
 
   const categoryInfo = getCurrentCategoryInfo();
+
+  // 处理使用提示词
+  const handleUsePrompt = (prompt: Prompt) => {
+    setSelectedPrompt(prompt);
+    setIsModalOpen(true);
+  };
+
+  // 处理快速复制
+  const handleQuickCopy = async (prompt: Prompt) => {
+    try {
+      await navigator.clipboard.writeText(prompt.content || prompt.title);
+      setCopySuccess(prompt.id.toString());
+      setTimeout(() => setCopySuccess(null), 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
+      // 降级方案
+      const textArea = document.createElement('textarea');
+      textArea.value = prompt.content || prompt.title;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopySuccess(prompt.id.toString());
+        setTimeout(() => setCopySuccess(null), 2000);
+      } catch (fallbackErr) {
+        console.error('降级复制也失败:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
+  // 处理模态框复制
+  const handleModalCopy = (_content: string) => {
+    // 复制成功的反馈已在模态框内处理
+    console.log('内容已复制到剪贴板');
+  };
+
+  // 处理保存为新提示词 (未来功能)
+  const handleSaveAsNew = async (content: string, parameters: Record<string, any>) => {
+    // TODO: 实现保存为新提示词的功能
+    console.log('保存为新提示词:', { content, parameters });
+    alert('保存功能开发中...');
+  };
+
+  // 关闭模态框
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPrompt(null);
+  };
 
   return (
     <div className="max-w-7xl mx-auto pt-6">
@@ -206,7 +260,7 @@ const Home: React.FC = () => {
                 </span>
               </div>
               
-              {/* 查看按钮和复制按钮 */}
+              {/* 操作按钮 */}
               <div className="flex gap-2">
                 <Link
                   to={`/prompts/${prompt.id}`}
@@ -214,22 +268,52 @@ const Home: React.FC = () => {
                 >
                   查看详情
                 </Link>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(prompt.content || prompt.title);
-                    // TODO: 添加复制成功提示
-                  }}
-                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors group"
-                  title="复制内容"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                </button>
+                
+                {/* 根据是否需要参数显示不同的按钮 */}
+                {needsParameters(prompt.content) ? (
+                  <button
+                    onClick={() => handleUsePrompt(prompt)}
+                    className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium"
+                    title="填写参数使用"
+                  >
+                    使用
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleQuickCopy(prompt)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      copySuccess === prompt.id.toString()
+                        ? 'text-green-600 bg-green-50'
+                        : 'text-gray-400 hover:text-blue-600 hover:bg-blue-50'
+                    }`}
+                    title="快速复制"
+                  >
+                    {copySuccess === prompt.id.toString() ? (
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* 参数化提示词模态框 */}
+      {selectedPrompt && (
+        <ParameterizedPromptModal
+          prompt={selectedPrompt}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onCopy={handleModalCopy}
+          onSaveAsNew={handleSaveAsNew}
+        />
       )}
     </div>
   );

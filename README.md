@@ -102,34 +102,46 @@ PromptFlow 应运而生，提供了完整的解决方案。
 
 ```
 prompt-flow/
-├── backend/                 # 后端 API 服务
+├── 📚 文档与配置              # 项目文档和配置文件
+│   ├── docs/                # 12个技术文档 (API参考、测试报告等)
+│   ├── .github/workflows/   # CI/CD GitHub Actions
+│   ├── Dockerfile           # Docker 容器配置
+│   ├── docker-compose.yml   # 服务编排配置
+│   └── README.md            # 项目主文档
+│
+├── 🖥️ 后端服务 (backend/)    # Node.js + Express + SQLite
 │   ├── src/
-│   │   ├── __tests__/      # 测试文件
+│   │   ├── __tests__/      # 11个测试文件 (95个测试用例)
+│   │   ├── models/         # 7个数据模型 (User, Prompt, Category等)
+│   │   ├── routes/         # 8个API路由 (32+端点)
+│   │   ├── services/       # 4个业务服务
+│   │   ├── scripts/        # 数据迁移脚本
 │   │   ├── config/         # 数据库配置
-│   │   ├── middleware/     # 中间件
-│   │   ├── models/         # 数据模型
-│   │   ├── routes/         # API 路由
-│   │   ├── services/       # 业务逻辑
-│   │   ├── utils/          # 工具函数
-│   │   └── index.ts        # 应用入口
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── jest.config.js
-├── frontend/                # 前端 React 应用
+│   │   ├── middleware/     # 认证中间件
+│   │   └── utils/          # 验证工具
+│   └── 配置文件 (package.json, tsconfig.json等)
+│
+├── 🌐 前端应用 (frontend/)   # React + TypeScript + Vite
 │   ├── src/
-│   │   ├── __tests__/      # 测试文件
-│   │   ├── components/     # React 组件
-│   │   ├── context/        # React Context
-│   │   ├── pages/          # 页面组件
-│   │   ├── services/       # API 服务
-│   │   ├── types/          # TypeScript 类型
-│   │   └── App.tsx         # 应用入口
-│   ├── package.json
-│   ├── vite.config.ts
-│   └── tailwind.config.js
-├── docs/                    # 项目文档
-└── README.md
+│   │   ├── components/     # 19个React组件 (分类侧边栏、编辑器等)
+│   │   ├── pages/          # 11个页面组件
+│   │   ├── context/        # 3个React Context (认证、分类、搜索)
+│   │   ├── performance/    # 性能监控和优化套件
+│   │   ├── services/       # API客户端
+│   │   └── types/          # TypeScript类型定义
+│   ├── __tests__/          # 6个测试文件 (185+测试用例)
+│   ├── e2e/                # E2E测试套件 (Playwright)
+│   ├── performance-reports/ # 性能分析报告
+│   └── 配置文件 (vite.config.ts, tailwind.config.js等)
+│
+└── 📊 项目统计
+    ├── 🔧 TypeScript文件: 87个 (100%类型安全)
+    ├── 🧪 测试文件: 27个 (280+测试用例, 100%通过率)
+    ├── 📄 配置文件: 16个 (构建、测试、部署)
+    └── 📚 文档文件: 12个 (完整技术文档)
 ```
+
+**详细项目结构**: 查看 [docs/architecture/overview.md](docs/architecture/overview.md) 获取完整的目录树和技术分析
 
 ## 🚀 快速开始
 
@@ -247,12 +259,17 @@ npm test
 ### 测试报告
 详细测试执行报告请查看 [TESTING_EXECUTION_REPORT.md](docs/TESTING_EXECUTION_REPORT.md)
 
-## 📖 API 文档
+## 📖 完整文档
 
-### 🔗 完整 API 参考
-项目实现了 **32+ 个 API 端点**，完整文档请查看：
-- [API_REFERENCE.md](docs/API_REFERENCE.md) - 完整的 API 参考文档
-- [系统测试计划](docs/SYSTEM_TESTING_PLAN.md) - 全面的系统测试文档
+### 📚 文档导航
+我们提供了全面的文档来帮助您使用和开发 PromptFlow：
+
+- **[📚 文档主页](docs/README.md)** - 完整的文档导航和概览
+- **[🚀 快速开始](docs/getting-started/quick-start.md)** - 5分钟快速上手指南
+- **[🔌 API 参考](docs/api/overview.md)** - 完整的 32+ API 端点文档
+- **[🛠️ 开发指南](docs/development/README.md)** - 开发环境设置和贡献指南
+- **[🧪 测试文档](docs/testing/README.md)** - 280+ 测试用例的测试策略
+- **[🚀 部署指南](docs/deployment/overview.md)** - 生产环境部署说明
 
 ### 🚀 核心 API 端点
 
@@ -360,10 +377,10 @@ Content-Type: application/json
 - **部署状态**: 可直接部署到生产环境
 
 ### 📋 技术文档
-- [COMPLETED_TASKS.md](docs/COMPLETED_TASKS.md) - 详细的已完成任务清单
-- [NEXT_STEPS.md](docs/NEXT_STEPS.md) - 开发进度和下一步计划
-- [IOS_APP_DEVELOPMENT_PLAN.md](docs/IOS_APP_DEVELOPMENT_PLAN.md) - iOS 应用开发计划
-- [TESTING_EXECUTION_REPORT.md](docs/TESTING_EXECUTION_REPORT.md) - 系统测试执行报告
+- **[🏗️ 系统架构](docs/architecture/overview.md)** - 详细的系统架构和技术栈分析
+- **[📱 iOS 开发计划](docs/guides/ios-development.md)** - 移动端开发路线图
+- **[📊 测试报告](docs/testing/execution-report.md)** - 完整的测试执行结果
+- **[🗺️ 产品路线图](docs/reference/roadmap.md)** - 未来功能规划和发展方向
 
 ## 🤝 贡献指南
 

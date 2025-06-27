@@ -7,7 +7,6 @@ export interface CreatePromptData {
   description?: string;
   category?: string;
   tags?: string[];
-  isTemplate?: boolean;
   isPublic?: boolean;
 }
 
@@ -17,7 +16,6 @@ export interface UpdatePromptData {
   description?: string;
   category?: string;
   tags?: string[];
-  isTemplate?: boolean;
   isPublic?: boolean;
 }
 
@@ -26,8 +24,8 @@ export interface GetPromptsOptions {
   category?: string;
   categoryId?: number;
   isPublic?: boolean;
-  isTemplate?: boolean;
   includePrompts?: boolean;
+  search?: string;
 }
 
 export interface CategoryAggregation {
@@ -42,7 +40,6 @@ export const createPrompt = async (userId: number, data: CreatePromptData) => {
     ...data,
     userId,
     version: 1,
-    isTemplate: data.isTemplate || false,
     isPublic: data.isPublic || false,
   });
 
@@ -81,8 +78,15 @@ export const getPrompts = async (options: GetPromptsOptions = {}) => {
     whereClause.categoryId = options.categoryId;
   }
 
-  if (options.isTemplate !== undefined) {
-    whereClause.isTemplate = options.isTemplate;
+
+  // Add search functionality
+  if (options.search && options.search.trim()) {
+    const searchTerm = options.search.trim();
+    (whereClause as any)[Op.or] = [
+      { title: { [Op.iLike]: `%${searchTerm}%` } },
+      { description: { [Op.iLike]: `%${searchTerm}%` } },
+      { content: { [Op.iLike]: `%${searchTerm}%` } },
+    ];
   }
 
   const prompts = await Prompt.findAll({
@@ -194,9 +198,6 @@ export const getPromptsByCategory = async (options: GetPromptsOptions = {}): Pro
     whereClause.isPublic = true;
   }
 
-  if (options.isTemplate !== undefined) {
-    whereClause.isTemplate = options.isTemplate;
-  }
 
   // Get prompts with category information
   const prompts = await Prompt.findAll({
