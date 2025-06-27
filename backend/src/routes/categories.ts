@@ -7,25 +7,65 @@ import { validateCreateCategoryData, validateUpdateCategoryData } from '../utils
 const router: Router = express.Router();
 const categoryService = new CategoryService();
 
-// GET /api/categories - 获取用户可见的所有分类
-router.get('/', authenticateToken, async (req: AuthenticatedRequest, res) => {
+// GET /api/categories - 获取分类（支持已登录和未登录用户）
+router.get('/', async (req, res) => {
   try {
-    const userId = req.user!.id;
-    const categories = await categoryService.getUserVisibleCategories(userId);
+    // 尝试获取用户ID（如果已登录）
+    const authHeader = req.headers.authorization;
+    let userId: number | null = null;
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+        userId = decoded.id;
+      } catch (error) {
+        // Token无效，继续以未登录用户处理
+      }
+    }
 
-    // 按作用域分组返回
-    const groupedCategories = {
-      personal: categories.filter(c => c.scopeType === CategoryScopeType.PERSONAL && c.scopeId === userId),
-      team: categories.filter(c => c.scopeType === CategoryScopeType.TEAM),
-      public: categories.filter(c => c.scopeType === CategoryScopeType.PUBLIC),
-    };
+    let categories;
+    if (userId) {
+      // 已登录用户：获取所有可见分类
+      categories = await categoryService.getUserVisibleCategories(userId);
+      
+      const groupedCategories = {
+        personal: categories.filter(c => c.scopeType === CategoryScopeType.PERSONAL && c.scopeId === userId),
+        team: categories.filter(c => c.scopeType === CategoryScopeType.TEAM),
+        public: categories.filter(c => c.scopeType === CategoryScopeType.PUBLIC),
+      };
 
-    res.json({
-      categories: groupedCategories,
-      total: categories.length,
-    });
+      res.json({
+        categories: groupedCategories,
+        total: categories.length,
+      });
+    } else {
+      // 未登录用户：只返回公开分类
+      const publicCategories = await categoryService.getPublicCategories();
+      
+      res.json({
+        categories: {
+          personal: [],
+          team: [],
+          public: publicCategories,
+        },
+        total: publicCategories.length,
+      });
+    }
   } catch (error) {
     console.error('Get categories error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/categories/stats - 获取分类统计信息
+router.get('/stats', async (req, res) => {
+  try {
+    const stats = await categoryService.getCategoryStats();
+    res.json({ stats });
+  } catch (error) {
+    console.error('Get category stats error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

@@ -105,6 +105,47 @@ export class CategoryService {
     return categories;
   }
 
+  async getPublicCategories(): Promise<Category[]> {
+    const categories = await Category.findAll({
+      where: {
+        scopeType: CategoryScopeType.PUBLIC,
+        isActive: true,
+      },
+      order: [['name', 'ASC']],
+    });
+    
+    return categories;
+  }
+
+  async getCategoryStats(): Promise<any> {
+    const totalCategories = await Category.count({ where: { isActive: true } });
+    const personalCategories = await Category.count({ 
+      where: { 
+        scopeType: CategoryScopeType.PERSONAL, 
+        isActive: true 
+      } 
+    });
+    const teamCategories = await Category.count({ 
+      where: { 
+        scopeType: CategoryScopeType.TEAM, 
+        isActive: true 
+      } 
+    });
+    const publicCategories = await Category.count({ 
+      where: { 
+        scopeType: CategoryScopeType.PUBLIC, 
+        isActive: true 
+      } 
+    });
+
+    return {
+      total: totalCategories,
+      personal: personalCategories,
+      team: teamCategories,
+      public: publicCategories,
+    };
+  }
+
   async updateCategory(
     categoryId: number, 
     data: UpdateCategoryData, 

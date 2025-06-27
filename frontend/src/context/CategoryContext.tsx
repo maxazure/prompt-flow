@@ -238,7 +238,12 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
       let errorMessage = 'Failed to load categories.';
       
       if (error?.response?.status === 401) {
-        errorMessage = 'Authentication failed. Please log in again.';
+        // For auth errors, don't retry automatically
+        errorMessage = 'Please log in to see all categories.';
+        // Only show public categories for unauthenticated users
+        dispatch({ type: 'SET_CATEGORIES', payload: [] });
+        dispatch({ type: 'SET_LAST_FETCH_TIME', payload: now });
+        return; // Don't set error state, just continue with empty categories
       } else if (error?.response?.status === 403) {
         errorMessage = 'You do not have permission to access categories.';
       } else if (error?.response?.status >= 500) {
