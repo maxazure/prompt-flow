@@ -34,9 +34,9 @@ export async function migrateCategoryData(): Promise<MigrationResult> {
       const promptsToMigrate = await sequelize.query(`
         SELECT p.*, u.username
         FROM prompts p
-        LEFT JOIN users u ON p.userId = u.id
+        LEFT JOIN users u ON p."userId" = u.id
         WHERE p.category IS NOT NULL 
-        AND p.categoryId IS NULL
+        AND p."categoryId" IS NULL
       `, { 
         type: QueryTypes.SELECT,
         transaction,
@@ -161,9 +161,9 @@ export async function validateMigration(): Promise<{
     // Get statistics using raw SQL for better type safety
     const statsQueries = await Promise.all([
       sequelize.query('SELECT COUNT(*) as count FROM prompts', { type: QueryTypes.SELECT }),
-      sequelize.query('SELECT COUNT(*) as count FROM prompts WHERE categoryId IS NOT NULL', { type: QueryTypes.SELECT }),
+      sequelize.query('SELECT COUNT(*) as count FROM prompts WHERE "categoryId" IS NOT NULL', { type: QueryTypes.SELECT }),
       sequelize.query('SELECT COUNT(*) as count FROM prompts WHERE category IS NOT NULL', { type: QueryTypes.SELECT }),
-      sequelize.query('SELECT COUNT(*) as count FROM prompts WHERE category IS NOT NULL AND categoryId IS NOT NULL', { type: QueryTypes.SELECT }),
+      sequelize.query('SELECT COUNT(*) as count FROM prompts WHERE category IS NOT NULL AND "categoryId" IS NOT NULL', { type: QueryTypes.SELECT }),
     ]) as Array<Array<{ count: string }>>;
 
     const totalPrompts = parseInt(statsQueries[0][0]?.count || '0');
@@ -175,8 +175,8 @@ export async function validateMigration(): Promise<{
     const orphanedPromptsResult = await sequelize.query(`
       SELECT COUNT(*) as count
       FROM prompts p
-      LEFT JOIN categories c ON p.categoryId = c.id
-      WHERE p.categoryId IS NOT NULL AND c.id IS NULL
+      LEFT JOIN categories c ON p."categoryId" = c.id
+      WHERE p."categoryId" IS NOT NULL AND c.id IS NULL
     `, { type: QueryTypes.SELECT }) as Array<{ count: string }>;
     
     const orphanedPrompts = parseInt(orphanedPromptsResult[0]?.count || '0');
@@ -198,7 +198,7 @@ export async function validateMigration(): Promise<{
     const duplicateCategories = await sequelize.query(`
       SELECT name, COUNT(*) as count 
       FROM categories 
-      WHERE scopeType = 'public' 
+      WHERE "scopeType" = 'public' 
       GROUP BY name 
       HAVING COUNT(*) > 1
     `, { type: QueryTypes.SELECT }) as Array<{ name: string; count: string }>;
