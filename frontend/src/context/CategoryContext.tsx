@@ -25,6 +25,8 @@ interface CategoryState {
   stats: CategoryStats | null;
   searchTerm: string;
   expandedGroups: Set<string>;
+  lastFetchTime: number | null;
+  cacheExpiryTime: number; // 5 minutes cache
 }
 
 // Action types for reducer
@@ -41,7 +43,8 @@ type CategoryAction =
   | { type: 'SET_STATS'; payload: CategoryStats }
   | { type: 'SET_SEARCH_TERM'; payload: string }
   | { type: 'TOGGLE_GROUP'; payload: string }
-  | { type: 'SET_EXPANDED_GROUPS'; payload: Set<string> };
+  | { type: 'SET_EXPANDED_GROUPS'; payload: Set<string> }
+  | { type: 'SET_LAST_FETCH_TIME'; payload: number };
 
 // Initial state
 const initialState: CategoryState = {
@@ -54,6 +57,8 @@ const initialState: CategoryState = {
   stats: null,
   searchTerm: '',
   expandedGroups: new Set(['personal', 'team', 'public']), // 默认展开所有分组
+  lastFetchTime: null,
+  cacheExpiryTime: 5 * 60 * 1000, // 5 minutes cache
 };
 
 // State reducer
@@ -125,6 +130,9 @@ function categoryReducer(state: CategoryState, action: CategoryAction): Category
     case 'SET_EXPANDED_GROUPS':
       return { ...state, expandedGroups: action.payload };
 
+    case 'SET_LAST_FETCH_TIME':
+      return { ...state, lastFetchTime: action.payload };
+
     default:
       return state;
   }
@@ -192,10 +200,23 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
     refreshCategories();
   }, []);
 
-  // Fetch categories from API
-  const refreshCategories = useCallback(async () => {
+  // Fetch categories from API with intelligent caching
+  const refreshCategories = useCallback(async (forceRefresh = false) => {
     try {
+      // Check cache validity
+      const now = Date.now();
+      const cacheValid = state.lastFetchTime && 
+                        (now - state.lastFetchTime) < state.cacheExpiryTime;
+      
+      if (!forceRefresh && cacheValid && state.categories.length > 0) {
+        console.log('🗄️ Using cached categories data');
+        return;
+      }
+
       dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_ERROR', payload: null });
+      
+      console.log('🔄 Fetching fresh categories data from API');
       
       const [categoriesResult, statsResult] = await Promise.all([
         categoriesAPI.getCategories({ onlyActive: true }),
@@ -203,18 +224,35 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
       ]);
 
       dispatch({ type: 'SET_CATEGORIES', payload: categoriesResult.categories });
+      dispatch({ type: 'SET_LAST_FETCH_TIME', payload: now });
       
       if (statsResult.stats) {
         dispatch({ type: 'SET_STATS', payload: statsResult.stats });
       }
-    } catch (error) {
-      console.error('Failed to load categories:', error);
+      
+      console.log(`✅ Loaded ${categoriesResult.categories.length} categories successfully`);
+    } catch (error: any) {
+      console.error('❌ Failed to load categories:', error);
+      
+      // Enhanced error handling with specific error messages
+      let errorMessage = 'Failed to load categories.';
+      
+      if (error?.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please log in again.';
+      } else if (error?.response?.status === 403) {
+        errorMessage = 'You do not have permission to access categories.';
+      } else if (error?.response?.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (error?.code === 'NETWORK_ERROR' || !navigator.onLine) {
+        errorMessage = 'Network error. Please check your connection.';
+      }
+      
       dispatch({ 
         type: 'SET_ERROR', 
-        payload: 'Failed to load categories. Please try again.' 
+        payload: errorMessage 
       });
     }
-  }, []);
+  }, [state.lastFetchTime, state.cacheExpiryTime, state.categories.length]);
 
   // Select category and update URL
   const selectCategory = useCallback((categoryId: string | null) => {
@@ -255,10 +293,13 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
     return state.categoryGroups.find(group => group.name === name);
   }, [state.categoryGroups]);
 
-  // Create new category
+  // Create new category with enhanced error handling
   const createCategory = useCallback(async (data: CreateCategoryRequest): Promise<Category> => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_ERROR', payload: null });
+      
+      console.log('🔄 Creating category:', data.name);
       
       const result = await categoriesAPI.createCategory(data);
       const newCategory = result.category;
@@ -266,12 +307,24 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
       dispatch({ type: 'ADD_CATEGORY', payload: newCategory });
       dispatch({ type: 'SET_LOADING', payload: false });
       
+      console.log('✅ Category created successfully:', newCategory.name);
       return newCategory;
-    } catch (error) {
-      console.error('Failed to create category:', error);
+    } catch (error: any) {
+      console.error('❌ Failed to create category:', error);
+      
+      let errorMessage = 'Failed to create category.';
+      
+      if (error?.response?.status === 400) {
+        errorMessage = 'Invalid category data. Please check your input.';
+      } else if (error?.response?.status === 409) {
+        errorMessage = 'A category with this name already exists.';
+      } else if (error?.response?.status === 403) {
+        errorMessage = 'You do not have permission to create categories.';
+      }
+      
       dispatch({ 
         type: 'SET_ERROR', 
-        payload: 'Failed to create category. Please try again.' 
+        payload: errorMessage 
       });
       throw error;
     }
@@ -295,20 +348,34 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
       dispatch({ type: 'SET_LOADING', payload: false });
       
       return updatedCategory;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update category:', error);
+      
+      let errorMessage = 'Failed to update category.';
+      
+      if (error?.response?.status === 400) {
+        errorMessage = 'Invalid category data. Please check your input.';
+      } else if (error?.response?.status === 404) {
+        errorMessage = 'Category not found.';
+      } else if (error?.response?.status === 403) {
+        errorMessage = 'You do not have permission to update this category.';
+      }
+      
       dispatch({ 
         type: 'SET_ERROR', 
-        payload: 'Failed to update category. Please try again.' 
+        payload: errorMessage 
       });
       throw error;
     }
   }, []);
 
-  // Delete category
+  // Delete category with enhanced error handling
   const deleteCategory = useCallback(async (id: number): Promise<void> => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_ERROR', payload: null });
+      
+      console.log('🔄 Deleting category:', id);
       
       await categoriesAPI.deleteCategory(id);
       
@@ -319,15 +386,38 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
       if (state.selectedCategory === id.toString()) {
         selectCategory(null);
       }
-    } catch (error) {
-      console.error('Failed to delete category:', error);
+      
+      console.log('✅ Category deleted successfully:', id);
+    } catch (error: any) {
+      console.error('❌ Failed to delete category:', error);
+      
+      let errorMessage = 'Failed to delete category.';
+      
+      if (error?.response?.status === 404) {
+        errorMessage = 'Category not found or already deleted.';
+      } else if (error?.response?.status === 403) {
+        errorMessage = 'You do not have permission to delete this category.';
+      } else if (error?.response?.status === 409) {
+        errorMessage = 'Cannot delete category with existing prompts.';
+      }
+      
       dispatch({ 
         type: 'SET_ERROR', 
-        payload: 'Failed to delete category. Please try again.' 
+        payload: errorMessage 
       });
       throw error;
     }
   }, [state.selectedCategory, selectCategory]);
+
+  // Clear error message
+  const clearError = useCallback(() => {
+    dispatch({ type: 'SET_ERROR', payload: null });
+  }, []);
+
+  // Retry failed operation
+  const retryLastOperation = useCallback(() => {
+    refreshCategories(true); // Force refresh
+  }, []);
 
   // Context value
   const contextValue: CategoryContextType = {
@@ -349,6 +439,8 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
     updateCategory,
     deleteCategory,
     refreshCategories,
+    clearError,
+    retryLastOperation,
   };
 
   return (

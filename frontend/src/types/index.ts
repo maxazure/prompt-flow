@@ -47,7 +47,8 @@ export interface CreatePromptRequest {
   title: string;
   content: string;
   description?: string;
-  category?: string;
+  category?: string;        // 保持向后兼容
+  categoryId?: number;      // 新的分类ID字段
   tags?: string[];
   isTemplate?: boolean;
   isPublic?: boolean;
@@ -58,7 +59,8 @@ export interface UpdatePromptRequest {
   title?: string;
   content?: string;
   description?: string;
-  category?: string;
+  category?: string;        // 保持向后兼容
+  categoryId?: number;      // 新的分类ID字段
   tags?: string[];
   isTemplate?: boolean;
   isPublic?: boolean;
@@ -342,7 +344,11 @@ export interface CategoryContextType {
   createCategory: (data: CreateCategoryRequest) => Promise<Category>;
   updateCategory: (id: number, data: UpdateCategoryRequest) => Promise<Category>;
   deleteCategory: (id: number) => Promise<void>;
-  refreshCategories: () => Promise<void>;
+  refreshCategories: (forceRefresh?: boolean) => Promise<void>;
+  
+  // 错误处理
+  clearError: () => void;
+  retryLastOperation: () => void;
 }
 
 // 分类筛选选项

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCategory } from '../context/CategoryContext';
 import { promptsAPI } from '../services/api';
 import type { Prompt } from '../types';
 import usePageTitle from '../hooks/usePageTitle';
@@ -11,19 +12,28 @@ interface DashboardStats {
   publicPrompts: number;
   templates: number;
   totalVersions: number;
+  totalCategories: number;
+  personalCategories: number;
+  teamCategories: number;
+  publicCategories: number;
 }
 
 const Dashboard: React.FC = () => {
   usePageTitle('Dashboard');
   
   const { user } = useAuth();
+  const { categories, refreshCategories } = useCategory();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
     totalPrompts: 0,
     privatePrompts: 0,
     publicPrompts: 0,
     templates: 0,
-    totalVersions: 0
+    totalVersions: 0,
+    totalCategories: 0,
+    personalCategories: 0,
+    teamCategories: 0,
+    publicCategories: 0
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,14 +43,21 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadUserPrompts();
-  }, []);
+    refreshCategories();
+  }, [refreshCategories]);
+
+  // 重新计算统计数据当categories或prompts改变时
+  useEffect(() => {
+    if (prompts.length > 0 || categories.length > 0) {
+      calculateStats(prompts);
+    }
+  }, [prompts, categories]);
 
   const loadUserPrompts = async () => {
     try {
       setLoading(true);
       const response = await promptsAPI.getMyPrompts();
       setPrompts(response.prompts);
-      calculateStats(response.prompts);
     } catch (err: any) {
       setError('Failed to load your prompts');
     } finally {
@@ -49,12 +66,22 @@ const Dashboard: React.FC = () => {
   };
 
   const calculateStats = (userPrompts: Prompt[]) => {
+    // 分类统计
+    const totalCategories = categories.length;
+    const personalCategories = categories.filter(cat => cat.scopeType === 'personal').length;
+    const teamCategories = categories.filter(cat => cat.scopeType === 'team').length;
+    const publicCategories = categories.filter(cat => cat.scopeType === 'public').length;
+
     const stats: DashboardStats = {
       totalPrompts: userPrompts.length,
       privatePrompts: userPrompts.filter(p => !p.isPublic).length,
       publicPrompts: userPrompts.filter(p => p.isPublic).length,
       templates: userPrompts.filter(p => p.isTemplate).length,
-      totalVersions: userPrompts.reduce((sum, p) => sum + (p.version || 1), 0)
+      totalVersions: userPrompts.reduce((sum, p) => sum + (p.version || 1), 0),
+      totalCategories,
+      personalCategories,
+      teamCategories,
+      publicCategories
     };
     setStats(stats);
   };
@@ -65,7 +92,10 @@ const Dashboard: React.FC = () => {
                          prompt.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          prompt.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesCategory = !filterCategory || prompt.category === filterCategory;
+    // 支持新的categoryId筛选
+    const matchesCategory = !filterCategory || 
+                           prompt.categoryId?.toString() === filterCategory ||
+                           prompt.category === filterCategory; // 向后兼容
     
     const matchesVisibility = filterVisibility === 'all' ||
                              (filterVisibility === 'public' && prompt.isPublic) ||
@@ -74,7 +104,12 @@ const Dashboard: React.FC = () => {
     return matchesSearch && matchesCategory && matchesVisibility;
   });
 
-  const categories = [...new Set(prompts.map(p => p.category).filter(Boolean))];
+  // 获取分类选项用于筛选 (包含新分类系统和旧的字符串分类)
+  const legacyCategories = [...new Set(prompts.map(p => p.category).filter(Boolean))];
+  const allCategoryOptions = [
+    ...categories.map(cat => ({ id: cat.id.toString(), name: cat.name, type: 'new' })),
+    ...legacyCategories.map(cat => ({ id: cat, name: cat, type: 'legacy' }))
+  ];
 
   const recentPrompts = prompts
     .sort((a, b) => new Date(b.updatedAt || '').getTime() - new Date(a.updatedAt || '').getTime())
@@ -112,7 +147,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-center">
             <div className="p-3 rounded-full bg-blue-100">
@@ -180,6 +215,68 @@ const Dashboard: React.FC = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Versions</p>
               <p className="text-2xl font-bold text-gray-900">{stats.totalVersions}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Category Statistics */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">分类统计</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-700">总分类数</p>
+                <p className="text-2xl font-bold text-blue-900">{stats.totalCategories}</p>
+              </div>
+              <div className="p-2 bg-blue-200 rounded-lg">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-700">👤 个人分类</p>
+                <p className="text-2xl font-bold text-green-900">{stats.personalCategories}</p>
+              </div>
+              <div className="p-2 bg-green-200 rounded-lg">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-purple-700">👥 团队分类</p>
+                <p className="text-2xl font-bold text-purple-900">{stats.teamCategories}</p>
+              </div>
+              <div className="p-2 bg-purple-200 rounded-lg">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-orange-700">🌍 公开分类</p>
+                <p className="text-2xl font-bold text-orange-900">{stats.publicCategories}</p>
+              </div>
+              <div className="p-2 bg-orange-200 rounded-lg">
+                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
@@ -289,9 +386,12 @@ const Dashboard: React.FC = () => {
             onChange={(e) => setFilterCategory(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="">All Categories</option>
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
+            <option value="">所有分类</option>
+            {allCategoryOptions.map(option => (
+              <option key={`${option.type}-${option.id}`} value={option.id}>
+                {option.name}
+                {option.type === 'legacy' && ' (旧版)'}
+              </option>
             ))}
           </select>
           <select

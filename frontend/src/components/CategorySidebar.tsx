@@ -28,7 +28,9 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
     selectedCategory, 
     selectCategory, 
     loading,
-    error 
+    error,
+    clearError,
+    retryLastOperation 
   } = useCategory();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -146,8 +148,27 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
           )}
 
           {error && (
-            <div className="p-4 text-center text-red-500 text-sm">
-              {error}
+            <div className="p-4 text-center">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-red-700 text-sm">{error}</p>
+                  <button
+                    onClick={clearError}
+                    className="text-red-400 hover:text-red-600 p-1"
+                    title="关闭错误提示"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <button
+                  onClick={retryLastOperation}
+                  className="mt-2 text-red-600 text-xs underline hover:text-red-800"
+                >
+                  重试
+                </button>
+              </div>
             </div>
           )}
 

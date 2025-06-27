@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bundle Analysis Report - PromptFlow</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; }
+        .header { border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
+        .metric { display: inline-block; margin-right: 30px; }
+        .metric-label { display: block; font-size: 14px; color: #666; }
+        .metric-value { display: block; font-size: 24px; font-weight: bold; color: #333; }
+        .files-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .files-table th, .files-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        .files-table th { background: #f8f9fa; font-weight: 600; }
+        .recommendation { padding: 12px; margin: 10px 0; border-radius: 6px; }
+        .recommendation.warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .recommendation.info { background: #d1ecf1; border-left: 4px solid #17a2b8; }
+        .recommendation.success { background: #d4edda; border-left: 4px solid #28a745; }
+        .size-bar { background: #e9ecef; height: 6px; border-radius: 3px; margin-top: 4px; }
+        .size-bar-fill { background: #007bff; height: 100%; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Bundle Analysis Report</h1>
+        <p>Generated on 6/27/2025, 1:20:09 PM</p>
+        
+        <div class="metric">
+            <span class="metric-label">Total Size</span>
+            <span class="metric-value">960.32 KB</span>
+        </div>
+        
+        <div class="metric">
+            <span class="metric-label">Gzipped (Est.)</span>
+            <span class="metric-value">288.1 KB</span>
+        </div>
+        
+        <div class="metric">
+            <span class="metric-label">Files</span>
+            <span class="metric-value">9</span>
+        </div>
+    </div>
+
+    <h2>Recommendations</h2>
+    
+        <div class="recommendation warning">
+            <strong>MEDIUM:</strong> Large JavaScript files detected: assets/charts-xEJ753cH.js, assets/index-CuzAVSyk.js
+        </div>
+    
+
+    <h2>Largest Files</h2>
+    <table class="files-table">
+        <thead>
+            <tr>
+                <th>File</th>
+                <th>Size</th>
+                <th>Gzipped (Est.)</th>
+                <th>Type</th>
+                <th>Relative Size</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+                <tr>
+                    <td><code>assets/charts-xEJ753cH.js</code></td>
+                    <td>344.5 KB</td>
+                    <td>103.35 KB</td>
+                    <td>javascript</td>
+                    <td>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 35.9%"></div>
+                        </div>
+                        35.9%
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td><code>assets/index-CuzAVSyk.js</code></td>
+                    <td>336.4 KB</td>
+                    <td>100.92 KB</td>
+                    <td>javascript</td>
+                    <td>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 35.0%"></div>
+                        </div>
+                        35.0%
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td><code>assets/monaco-editor-CpN8rtOO.css</code></td>
+                    <td>130.27 KB</td>
+                    <td>39.08 KB</td>
+                    <td>css</td>
+                    <td>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 13.6%"></div>
+                        </div>
+                        13.6%
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td><code>assets/index-C0Gszjlu.css</code></td>
+                    <td>38.17 KB</td>
+                    <td>11.45 KB</td>
+                    <td>css</td>
+                    <td>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 4.0%"></div>
+                        </div>
+                        4.0%
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td><code>assets/utils-Dq7h7Pqt.js</code></td>
+                    <td>34.42 KB</td>
+                    <td>10.33 KB</td>
+                    <td>javascript</td>
+                    <td>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 3.6%"></div>
+                        </div>
+                        3.6%
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td><code>assets/router-OEEQw-Bo.js</code></td>
+                    <td>34.02 KB</td>
+                    <td>10.21 KB</td>
+                    <td>javascript</td>
+                    <td>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 3.5%"></div>
+                        </div>
+                        3.5%
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td><code>assets/monaco-editor-CCmcjZwc.js</code></td>
+                    <td>23.11 KB</td>
+                    <td>6.93 KB</td>
+                    <td>javascript</td>
+                    <td>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 2.4%"></div>
+                        </div>
+                        2.4%
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td><code>assets/PromptEditor-SShyS2K4.js</code></td>
+                    <td>15.63 KB</td>
+                    <td>4.69 KB</td>
+                    <td>javascript</td>
+                    <td>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 1.6%"></div>
+                        </div>
+                        1.6%
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td><code>assets/react-vendor-BSylMCI5.js</code></td>
+                    <td>3.81 KB</td>
+                    <td>1.14 KB</td>
+                    <td>javascript</td>
+                    <td>
+                        <div class="size-bar">
+                            <div class="size-bar-fill" style="width: 0.4%"></div>
+                        </div>
+                        0.4%
+                    </td>
+                </tr>
+            
+        </tbody>
+    </table>
+
+    <h2>File Breakdown</h2>
+    <h3>JavaScript Files (7)</h3>
+    <p>Total JS Size: 791.88 KB</p>
+    
+    <h3>CSS Files (2)</h3>
+    <p>Total CSS Size: 168.45 KB</p>
+</body>
+</html>
+  

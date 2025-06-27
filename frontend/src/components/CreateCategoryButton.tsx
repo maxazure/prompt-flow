@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCategory } from '../context/CategoryContext';
+import ColorPicker from './ColorPicker';
 import { CategoryScope, CategoryColors } from '../types';
 
 // =====================================================
@@ -249,20 +250,14 @@ const CreateCategoryButton: React.FC<CreateCategoryButtonProps> = ({
               <label className="block text-xs font-medium text-gray-700 mb-1">
                 颜色标识
               </label>
-              <div className="flex gap-1 flex-wrap">
-                {CategoryColors.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => handleInputChange('color', color)}
-                    className={`w-6 h-6 rounded-full border-2 transition-all
-                              ${formData.color === color 
-                                ? 'border-gray-900 scale-110' 
-                                : 'border-gray-300 hover:scale-105'}`}
-                    style={{ backgroundColor: color }}
-                    aria-label={`选择颜色 ${color}`}
-                  />
-                ))}
+              <div className="flex items-center gap-2">
+                <ColorPicker 
+                  value={formData.color}
+                  onChange={(color) => handleInputChange('color', color)}
+                />
+                <span className="text-xs text-gray-500">
+                  点击选择分类颜色
+                </span>
               </div>
             </div>
 

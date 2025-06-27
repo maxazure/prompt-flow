@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptFlow Comprehensive Test Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .header .timestamp { opacity: 0.9; font-size: 1.1rem; }
+        
+        .summary-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 1rem; 
+            margin-bottom: 2rem; 
+        }
+        .summary-card { 
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #3b82f6;
+        }
+        .summary-card h3 { color: #1e293b; margin-bottom: 0.5rem; }
+        .summary-card .value { font-size: 2rem; font-weight: bold; color: #3b82f6; }
+        .summary-card .label { color: #64748b; font-size: 0.9rem; }
+        
+        .success-rate { 
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        .success-rate .value, .success-rate h3 { color: white; }
+        
+        .test-results { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+            gap: 1.5rem; 
+            margin-bottom: 2rem; 
+        }
+        .test-card { 
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-card h3 { 
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .status-icon { 
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        .status-success { background: #10b981; }
+        .status-failure { background: #ef4444; }
+        .status-error { background: #f59e0b; }
+        .status-not-configured { background: #64748b; }
+        .status-not-available { background: #94a3b8; }
+        .status-available { background: #3b82f6; }
+        
+        .test-stats { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; }
+        .stat-passed { color: #10b981; }
+        .stat-failed { color: #ef4444; }
+        .stat-total { color: #3b82f6; }
+        
+        .progress-bar { 
+            background: #e2e8f0;
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill { 
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.3s ease;
+        }
+        
+        .test-details { 
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #475569;
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .environment { 
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .environment h2 { margin-bottom: 1rem; color: #1e293b; }
+        .env-grid { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .env-item { 
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .env-label { font-weight: 500; }
+        .env-value { color: #64748b; }
+        
+        .footer { 
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .recommendations {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border-left: 4px solid #f59e0b;
+        }
+        .recommendations h2 { color: #92400e; margin-bottom: 1rem; }
+        .recommendations ul { margin-left: 1.5rem; }
+        .recommendations li { margin-bottom: 0.5rem; color: #b45309; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header h1 { font-size: 2rem; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .test-results { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 PromptFlow Test Report</h1>
+            <div class="timestamp">Generated on 6/27/2025, 1:31:24 PM</div>
+        </div>
+        
+        <div class="summary-grid">
+            <div class="summary-card">
+                <h3>Total Tests</h3>
+                <div class="value">7</div>
+                <div class="label">Across all suites</div>
+            </div>
+            <div class="summary-card">
+                <h3>Passed</h3>
+                <div class="value stat-passed">1</div>
+                <div class="label">Tests passed</div>
+            </div>
+            <div class="summary-card">
+                <h3>Failed</h3>
+                <div class="value stat-failed">0</div>
+                <div class="label">Tests failed</div>
+            </div>
+            <div class="summary-card success-rate">
+                <h3>Success Rate</h3>
+                <div class="value">14.3%</div>
+                <div class="label">Overall success</div>
+            </div>
+        </div>
+        
+        <div class="test-results">
+            
+                <div class="test-card">
+                    <h3>
+                        <div class="status-icon status-error"></div>
+                        Frontend Unit Tests
+                    </h3>
+                    <div class="test-stats">
+                        <div class="stat">
+                            <div class="stat-value stat-total">0</div>
+                            <div>Total</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value stat-passed">0</div>
+                            <div>Passed</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value stat-failed">0</div>
+                            <div>Failed</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #64748b;">
+                        Status: <strong>error</strong> | 
+                        Duration: 4.30s
+                    </div>
+                    <div class="test-details">Error: Command failed: npm test -- --run --reporter=verbose
+stderr | src/performance/__tests__/performance.test.ts > BundleAnalyzer > should analyze bundle size
+Could not load build manifest, using fallback analysis
+
+stderr | src/__tests__/PromptEditor.test.tsx > PromptEditor > renders the editor with all basic components
+In HTML, <span> cannot be a child of <option>.
+This will cause a hydration error.
+
+  <PromptEditor onSave={function spy} onCancel={function spy}>
+    <div className="max-w-7xl ...</div>
+                </div>
+            
+                <div class="test-card">
+                    <h3>
+                        <div class="status-icon status-available"></div>
+                        E2E Tests
+                    </h3>
+                    <div class="test-stats">
+                        <div class="stat">
+                            <div class="stat-value stat-total">6</div>
+                            <div>Total</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value stat-passed">0</div>
+                            <div>Passed</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value stat-failed">0</div>
+                            <div>Failed</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #64748b;">
+                        Status: <strong>available</strong> | 
+                        Duration: 0.00s
+                    </div>
+                    <div class="test-details">6 test files found: category-management.spec.ts, navigation.spec.ts, prompt-management.spec.ts, responsive-behavior.spec.ts, search-filter.spec.ts, sidebar-interactions.spec.ts</div>
+                </div>
+            
+                <div class="test-card">
+                    <h3>
+                        <div class="status-icon status-error"></div>
+                        Performance Tests
+                    </h3>
+                    <div class="test-stats">
+                        <div class="stat">
+                            <div class="stat-value stat-total">0</div>
+                            <div>Total</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value stat-passed">0</div>
+                            <div>Passed</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value stat-failed">0</div>
+                            <div>Failed</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #64748b;">
+                        Status: <strong>error</strong> | 
+                        Duration: 1.44s
+                    </div>
+                    <div class="test-details">Error: Command failed: npm run perf:test
+stderr | src/performance/__tests__/performance.test.ts > BundleAnalyzer > should analyze bundle size
+Could not load build manifest, using fallback analysis
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/performance/__tests__/performance.test.ts > NetworkOptimizer > should run network optimization test
+ReferenceError: Cannot access 'report' before initialization
+ ❯ NetworkOptimizer.analyzeNetworkMetrics src/performance/networkOptimizer.ts:294:66
+    292|    ...</div>
+                </div>
+            
+                <div class="test-card">
+                    <h3>
+                        <div class="status-icon status-not-configured"></div>
+                        Backend Tests
+                    </h3>
+                    <div class="test-stats">
+                        <div class="stat">
+                            <div class="stat-value stat-total">0</div>
+                            <div>Total</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value stat-passed">0</div>
+                            <div>Passed</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value stat-failed">0</div>
+                            <div>Failed</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #64748b;">
+                        Status: <strong>not-configured</strong> | 
+                        Duration: 0.00s
+                    </div>
+                    <div class="test-details">No test script configured in backend</div>
+                </div>
+            
+                <div class="test-card">
+                    <h3>
+                        <div class="status-icon status-success"></div>
+                        Bundle Analysis
+                    </h3>
+                    <div class="test-stats">
+                        <div class="stat">
+                            <div class="stat-value stat-total">1</div>
+                            <div>Total</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value stat-passed">1</div>
+                            <div>Passed</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value stat-failed">0</div>
+                            <div>Failed</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #64748b;">
+                        Status: <strong>success</strong> | 
+                        Duration: 0.15s
+                    </div>
+                    <div class="test-details">Bundle analysis completed successfully</div>
+                </div>
+            
+        </div>
+        
+        <div class="recommendations">
+            <h2>📋 Test Setup Recommendations</h2>
+            <ul>
+                <li><strong>Frontend Unit Tests:</strong> Consider improving test coverage</li>
+                <li><strong>E2E Tests:</strong> Ready to run - execute with npm run test:e2e</li>
+                <li><strong>Performance Tests:</strong> Consider adding performance benchmarks</li>
+                <li><strong>Backend Tests:</strong> Consider adding backend test suite</li>
+                <li><strong>Bundle Analysis:</strong> Regular bundle size monitoring helps identify optimization opportunities</li>
+            </ul>
+        </div>
+        
+        <div class="environment">
+            <h2>🔧 Environment Information</h2>
+            <div class="env-grid">
+                <div class="env-item">
+                    <span class="env-label">Node Version</span>
+                    <span class="env-value">v23.7.0</span>
+                </div>
+                <div class="env-item">
+                    <span class="env-label">NPM Version</span>
+                    <span class="env-value">10.9.2</span>
+                </div>
+                <div class="env-item">
+                    <span class="env-label">Platform</span>
+                    <span class="env-value">darwin</span>
+                </div>
+                <div class="env-item">
+                    <span class="env-label">Project Version</span>
+                    <span class="env-value">0.0.0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Generated by PromptFlow Test Reporter • 2025<br>
+            <em>This report provides a comprehensive overview of the testing infrastructure and results.</em>
+        </div>
+    </div>
+</body>
+</html>

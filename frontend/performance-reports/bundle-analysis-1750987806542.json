@@ -1,0 +1,213 @@
+{
+  "timestamp": "2025-06-27T01:30:06.541Z",
+  "files": [
+    {
+      "path": "assets/charts-xEJ753cH.js",
+      "size": 352763,
+      "sizeFormatted": "344.5 KB",
+      "gzipEstimate": 105829,
+      "type": "javascript"
+    },
+    {
+      "path": "assets/index-CuzAVSyk.js",
+      "size": 344475,
+      "sizeFormatted": "336.4 KB",
+      "gzipEstimate": 103343,
+      "type": "javascript"
+    },
+    {
+      "path": "assets/monaco-editor-CpN8rtOO.css",
+      "size": 133401,
+      "sizeFormatted": "130.27 KB",
+      "gzipEstimate": 40020,
+      "type": "css"
+    },
+    {
+      "path": "assets/index-C0Gszjlu.css",
+      "size": 39087,
+      "sizeFormatted": "38.17 KB",
+      "gzipEstimate": 11726,
+      "type": "css"
+    },
+    {
+      "path": "assets/utils-Dq7h7Pqt.js",
+      "size": 35246,
+      "sizeFormatted": "34.42 KB",
+      "gzipEstimate": 10574,
+      "type": "javascript"
+    },
+    {
+      "path": "assets/router-OEEQw-Bo.js",
+      "size": 34832,
+      "sizeFormatted": "34.02 KB",
+      "gzipEstimate": 10450,
+      "type": "javascript"
+    },
+    {
+      "path": "assets/monaco-editor-CCmcjZwc.js",
+      "size": 23663,
+      "sizeFormatted": "23.11 KB",
+      "gzipEstimate": 7099,
+      "type": "javascript"
+    },
+    {
+      "path": "assets/PromptEditor-SShyS2K4.js",
+      "size": 16004,
+      "sizeFormatted": "15.63 KB",
+      "gzipEstimate": 4801,
+      "type": "javascript"
+    },
+    {
+      "path": "assets/react-vendor-BSylMCI5.js",
+      "size": 3900,
+      "sizeFormatted": "3.81 KB",
+      "gzipEstimate": 1170,
+      "type": "javascript"
+    }
+  ],
+  "totalSize": 983371,
+  "gzipEstimate": 295012,
+  "totalSizeFormatted": "960.32 KB",
+  "gzipEstimateFormatted": "288.1 KB",
+  "analysis": {
+    "largestFiles": [
+      {
+        "path": "assets/charts-xEJ753cH.js",
+        "size": 352763,
+        "sizeFormatted": "344.5 KB",
+        "gzipEstimate": 105829,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/index-CuzAVSyk.js",
+        "size": 344475,
+        "sizeFormatted": "336.4 KB",
+        "gzipEstimate": 103343,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/monaco-editor-CpN8rtOO.css",
+        "size": 133401,
+        "sizeFormatted": "130.27 KB",
+        "gzipEstimate": 40020,
+        "type": "css"
+      },
+      {
+        "path": "assets/index-C0Gszjlu.css",
+        "size": 39087,
+        "sizeFormatted": "38.17 KB",
+        "gzipEstimate": 11726,
+        "type": "css"
+      },
+      {
+        "path": "assets/utils-Dq7h7Pqt.js",
+        "size": 35246,
+        "sizeFormatted": "34.42 KB",
+        "gzipEstimate": 10574,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/router-OEEQw-Bo.js",
+        "size": 34832,
+        "sizeFormatted": "34.02 KB",
+        "gzipEstimate": 10450,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/monaco-editor-CCmcjZwc.js",
+        "size": 23663,
+        "sizeFormatted": "23.11 KB",
+        "gzipEstimate": 7099,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/PromptEditor-SShyS2K4.js",
+        "size": 16004,
+        "sizeFormatted": "15.63 KB",
+        "gzipEstimate": 4801,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/react-vendor-BSylMCI5.js",
+        "size": 3900,
+        "sizeFormatted": "3.81 KB",
+        "gzipEstimate": 1170,
+        "type": "javascript"
+      }
+    ],
+    "javascriptFiles": [
+      {
+        "path": "assets/charts-xEJ753cH.js",
+        "size": 352763,
+        "sizeFormatted": "344.5 KB",
+        "gzipEstimate": 105829,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/index-CuzAVSyk.js",
+        "size": 344475,
+        "sizeFormatted": "336.4 KB",
+        "gzipEstimate": 103343,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/utils-Dq7h7Pqt.js",
+        "size": 35246,
+        "sizeFormatted": "34.42 KB",
+        "gzipEstimate": 10574,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/router-OEEQw-Bo.js",
+        "size": 34832,
+        "sizeFormatted": "34.02 KB",
+        "gzipEstimate": 10450,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/monaco-editor-CCmcjZwc.js",
+        "size": 23663,
+        "sizeFormatted": "23.11 KB",
+        "gzipEstimate": 7099,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/PromptEditor-SShyS2K4.js",
+        "size": 16004,
+        "sizeFormatted": "15.63 KB",
+        "gzipEstimate": 4801,
+        "type": "javascript"
+      },
+      {
+        "path": "assets/react-vendor-BSylMCI5.js",
+        "size": 3900,
+        "sizeFormatted": "3.81 KB",
+        "gzipEstimate": 1170,
+        "type": "javascript"
+      }
+    ],
+    "cssFiles": [
+      {
+        "path": "assets/monaco-editor-CpN8rtOO.css",
+        "size": 133401,
+        "sizeFormatted": "130.27 KB",
+        "gzipEstimate": 40020,
+        "type": "css"
+      },
+      {
+        "path": "assets/index-C0Gszjlu.css",
+        "size": 39087,
+        "sizeFormatted": "38.17 KB",
+        "gzipEstimate": 11726,
+        "type": "css"
+      }
+    ],
+    "recommendations": [
+      {
+        "type": "warning",
+        "message": "Large JavaScript files detected: assets/charts-xEJ753cH.js, assets/index-CuzAVSyk.js",
+        "priority": "medium"
+      }
+    ]
+  }
+}

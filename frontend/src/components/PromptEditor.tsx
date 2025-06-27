@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Editor } from '@monaco-editor/react';
 import PromptOptimizer from './PromptOptimizer';
+import { useCategory } from '../context/CategoryContext';
 import type { CreatePromptRequest } from '../types';
 
 interface PromptEditorProps {
@@ -161,19 +162,6 @@ Please create engaging, valuable content that ranks well and drives engagement.`
   }
 ];
 
-const categories = [
-  'web-development',
-  'documentation', 
-  'development',
-  'content',
-  'data-analysis',
-  'marketing',
-  'design',
-  'business',
-  'education',
-  'other'
-];
-
 const PromptEditor: React.FC<PromptEditorProps> = ({
   initialData,
   onSave,
@@ -181,11 +169,13 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
   isEditing = false,
   loading = false
 }) => {
+  const { categories, refreshCategories } = useCategory();
   const [formData, setFormData] = useState<CreatePromptRequest>({
     title: initialData?.title || '',
     content: initialData?.content || '',
     description: initialData?.description || '',
-    category: initialData?.category || '',
+    category: initialData?.category || '',        // 向后兼容
+    categoryId: initialData?.categoryId || undefined,  // 新字段
     tags: initialData?.tags || [],
     isTemplate: initialData?.isTemplate || false,
     isPublic: initialData?.isPublic || false,
@@ -196,6 +186,11 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const editorRef = useRef<any>(null);
+
+  // 加载分类数据
+  useEffect(() => {
+    refreshCategories();
+  }, [refreshCategories]);
 
   useEffect(() => {
     // Auto-save to localStorage
@@ -277,6 +272,11 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
 
     if (formData.description && formData.description.length > 1000) {
       newErrors.description = 'Description must be less than 1000 characters';
+    }
+
+    // 验证分类选择 (必填)
+    if (!formData.categoryId) {
+      newErrors.category = '请选择分类';
     }
 
     if (formData.tags && formData.tags.length > 10) {
@@ -467,22 +467,53 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Category
+                      分类 *
                     </label>
                     <select
-                      value={formData.category}
-                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={formData.categoryId || ''}
+                      onChange={(e) => {
+                        const categoryId = e.target.value ? parseInt(e.target.value) : undefined;
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          categoryId,
+                          category: undefined // 清除旧的category字段
+                        }));
+                      }}
+                      className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        errors.category ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      required
                     >
-                      <option value="">Select a category</option>
+                      <option value="">选择分类</option>
                       {categories.map(category => (
-                        <option key={category} value={category}>
-                          {category.split('-').map(word => 
-                            word.charAt(0).toUpperCase() + word.slice(1)
-                          ).join(' ')}
+                        <option key={category.id} value={category.id}>
+                          ● {category.name}
+                          {category.scopeType === 'personal' && ' 👤'}
+                          {category.scopeType === 'team' && ' 👥'}
+                          {category.scopeType === 'public' && ' 🌍'}
                         </option>
                       ))}
                     </select>
+                    {errors.category && (
+                      <p className="text-red-600 text-sm mt-1">{errors.category}</p>
+                    )}
+                    
+                    {/* 显示选中分类的信息 */}
+                    {formData.categoryId && (() => {
+                      const selectedCategory = categories.find(cat => cat.id === formData.categoryId);
+                      return selectedCategory ? (
+                        <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+                          <div 
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: selectedCategory.color }}
+                          />
+                          <span>{selectedCategory.name}</span>
+                          {selectedCategory.description && (
+                            <span className="text-gray-500">- {selectedCategory.description}</span>
+                          )}
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
 
                   <div>

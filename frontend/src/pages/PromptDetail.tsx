@@ -7,6 +7,7 @@ import VersionDiff from '../components/VersionDiff';
 import Comments from '../components/Comments';
 import PromptOptimizer from '../components/PromptOptimizer';
 import { useAuth } from '../context/AuthContext';
+import { useCategory } from '../context/CategoryContext';
 import usePageTitle from '../hooks/usePageTitle';
 
 const PromptDetail: React.FC = () => {
@@ -15,6 +16,7 @@ const PromptDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { getCategoryById } = useCategory();
   
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [loading, setLoading] = useState(true);
@@ -178,6 +180,16 @@ const PromptDetail: React.FC = () => {
     );
   }
 
+  // 获取分类信息
+  const getCategoryInfo = () => {
+    if (prompt?.categoryId) {
+      return getCategoryById(prompt.categoryId);
+    }
+    return null;
+  };
+
+  const categoryInfo = getCategoryInfo();
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header */}
@@ -185,6 +197,42 @@ const PromptDetail: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{prompt.title}</h1>
+            
+            {/* 分类信息显示 */}
+            {categoryInfo && (
+              <div className="flex items-center gap-3 mt-3 mb-2">
+                <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
+                  <div 
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: categoryInfo.color }}
+                  />
+                  <span className="text-sm font-medium text-gray-900">
+                    {categoryInfo.name}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {categoryInfo.scopeType === 'personal' && '👤 个人'}
+                    {categoryInfo.scopeType === 'team' && '👥 团队'}
+                    {categoryInfo.scopeType === 'public' && '🌍 公开'}
+                  </span>
+                </div>
+                {categoryInfo.description && (
+                  <span className="text-sm text-gray-600">
+                    {categoryInfo.description}
+                  </span>
+                )}
+              </div>
+            )}
+            
+            {/* 兼容老的字符串分类 */}
+            {!categoryInfo && prompt.category && (
+              <div className="flex items-center gap-2 mt-3 mb-2">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  {prompt.category}
+                </span>
+                <span className="text-xs text-gray-500">(旧版分类)</span>
+              </div>
+            )}
+            
             <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
               <span>Version {prompt.version}</span>
               <span>•</span>
