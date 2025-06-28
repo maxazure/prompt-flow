@@ -39,7 +39,8 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
   // 加载分类数据
   useEffect(() => {
     refreshCategories();
-  }, [refreshCategories]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Remove refreshCategories dependency to prevent infinite loop
 
   useEffect(() => {
     // Auto-save to localStorage

@@ -42,7 +42,8 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     loadUserPrompts();
     refreshCategories();
-  }, [refreshCategories]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Remove refreshCategories dependency to prevent infinite loop
 
   // 重新计算统计数据当categories或prompts改变时
   useEffect(() => {

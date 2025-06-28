@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 import { categoriesAPI } from '../services/api';
 import type { 
   Category, 
@@ -170,6 +171,7 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
   const [state, dispatch] = useReducer(categoryReducer, initialState);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   // Load sidebar collapsed state from localStorage
   useEffect(() => {
@@ -195,13 +197,21 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [location.pathname]);
 
-  // Load categories on mount
+  // Load categories on mount only for authenticated users
   useEffect(() => {
-    refreshCategories();
-  }, []);
+    if (isAuthenticated) {
+      refreshCategories();
+    }
+  }, [isAuthenticated]);
 
   // Fetch categories from API with intelligent caching
   const refreshCategories = useCallback(async (forceRefresh = false) => {
+    // Don't fetch categories for unauthenticated users
+    if (!isAuthenticated) {
+      console.log('🔒 Skipping category fetch - user not authenticated');
+      return;
+    }
+
     try {
       // Check cache validity
       const now = Date.now();
@@ -274,7 +284,7 @@ export const CategoryProvider: React.FC<{ children: React.ReactNode }> = ({
         payload: errorMessage 
       });
     }
-  }, [state.lastFetchTime, state.cacheExpiryTime, state.categories.length]);
+  }, [isAuthenticated]); // Include isAuthenticated to prevent calls for unauthenticated users
 
   // Select category and update URL
   const selectCategory = useCallback((categoryId: string | null) => {
