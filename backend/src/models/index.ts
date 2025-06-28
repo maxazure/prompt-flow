@@ -5,6 +5,7 @@ export { Team } from './Team';
 export { TeamMember, TeamRole } from './TeamMember';
 export { Comment } from './Comment';
 export { Category, CategoryScopeType } from './Category';
+export { Project } from './Project';
 
 // 设置模型关联关系
 import { User } from './User';
@@ -14,6 +15,7 @@ import { Team } from './Team';
 import { TeamMember } from './TeamMember';
 import { Comment } from './Comment';
 import { Category } from './Category';
+import { Project } from './Project';
 
 // User 关联
 User.hasMany(Prompt, { foreignKey: 'userId', as: 'prompts' });
@@ -26,6 +28,7 @@ User.hasMany(Comment, { foreignKey: 'userId', as: 'comments' });
 Prompt.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Prompt.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
 Prompt.belongsTo(Category, { foreignKey: 'categoryId', as: 'categoryRelation' });
+Prompt.belongsTo(Project, { foreignKey: 'projectId', as: 'project' });
 Prompt.hasMany(PromptVersion, { foreignKey: 'promptId', as: 'versions' });
 Prompt.hasMany(Comment, { foreignKey: 'promptId', as: 'comments' });
 Prompt.hasMany(Prompt, { foreignKey: 'parentId', as: 'children' });
@@ -62,3 +65,14 @@ User.hasMany(Category, { foreignKey: 'createdBy', as: 'createdCategories' });
 
 // Team 和 Category 关联  
 // Team.hasMany(Category, { foreignKey: 'scopeId', as: 'teamCategories' });
+
+// Project 关联
+Project.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Project.belongsTo(Team, { foreignKey: 'teamId', as: 'team' });
+Project.hasMany(Prompt, { foreignKey: 'projectId', as: 'prompts' });
+
+// User 和 Project 关联
+User.hasMany(Project, { foreignKey: 'userId', as: 'projects' });
+
+// Team 和 Project 关联
+Team.hasMany(Project, { foreignKey: 'teamId', as: 'projects' });

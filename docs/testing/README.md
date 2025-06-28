@@ -68,38 +68,38 @@ supertest       # HTTP assertion testing
 
 ```bash
 # Run all tests
-npm test
+pnpm test
 
 # Frontend tests
 cd frontend
-npm test                    # Unit tests
-npm run test:e2e           # E2E tests
-npm run test:coverage      # Coverage report
-npm run perf:all          # Performance tests
+pnpm test                    # Unit tests
+pnpm run test:e2e           # E2E tests
+pnpm run test:coverage      # Coverage report
+pnpm run perf:all          # Performance tests
 
 # Backend tests
 cd backend
-npm test                    # Unit and integration tests
-npm run test:watch         # Watch mode
+pnpm test                    # Unit and integration tests
+pnpm run test:watch         # Watch mode
 ```
 
 ### Detailed Test Execution
 
 ```bash
 # Unit tests with coverage
-npm run test:coverage
+pnpm run test:coverage
 
 # E2E tests with UI
-npm run test:e2e -- --ui
+pnpm run test:e2e -- --ui
 
 # Performance benchmarks
-npm run perf:benchmark
+pnpm run perf:benchmark
 
 # Memory leak detection
-npm run perf:memory
+pnpm run perf:memory
 
 # Network optimization tests
-npm run perf:network
+pnpm run perf:network
 ```
 
 ## 📈 Test Reports

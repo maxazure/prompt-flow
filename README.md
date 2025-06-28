@@ -147,7 +147,7 @@ prompt-flow/
 
 ### 前置要求
 - Node.js 18+
-- npm 或 yarn
+- pnpm 或 yarn
 
 ### 安装步骤
 
@@ -160,13 +160,13 @@ cd prompt-flow
 2. **安装后端依赖**
 ```bash
 cd backend
-npm install
+pnpm install
 ```
 
 3. **安装前端依赖**
 ```bash
 cd frontend
-npm install
+pnpm install
 ```
 
 4. **配置环境变量**
@@ -220,13 +220,13 @@ VITE_APP_ENV=development
 后端服务：
 ```bash
 cd backend
-npm run dev
+pnpm run dev
 ```
 
 前端服务：
 ```bash
 cd frontend
-npm run dev
+pnpm run dev
 ```
 
 访问 http://localhost:5173 查看应用
@@ -236,14 +236,14 @@ npm run dev
 ### 运行后端测试
 ```bash
 cd backend
-npm test
+pnpm test
 # 输出: 95 tests passed, 6 test suites
 ```
 
 ### 运行前端测试
 ```bash
 cd frontend
-npm test
+pnpm test
 # 输出: 27 tests passed, 2 failed (93.1% success rate)
 ```
 

@@ -6,6 +6,7 @@ import teamsRoutes from './teams';
 import commentsRoutes from './comments';
 import aiRoutes from './ai';
 import categoriesRoutes from './categories';
+import projectsRoutes from './projects';
 
 const router: Router = express.Router();
 
@@ -15,6 +16,7 @@ router.use('/teams', teamsRoutes);
 router.use('/comments', commentsRoutes);
 router.use('/ai', aiRoutes);
 router.use('/categories', categoriesRoutes);
+router.use('/projects', projectsRoutes);
 router.use('/', versionRoutes);
 
 export default router;

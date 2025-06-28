@@ -25,11 +25,11 @@ cd prompt-flow
 
 # Install backend dependencies
 cd backend
-npm install
+pnpm install
 
 # Install frontend dependencies
 cd ../frontend
-npm install
+pnpm install
 ```
 
 ## ⚙️ Step 2: Environment Setup
@@ -54,14 +54,14 @@ Open two terminal windows:
 **Terminal 1 - Backend Server:**
 ```bash
 cd backend
-npm run dev
+pnpm run dev
 ```
 ✅ Backend running at `http://localhost:3001`
 
 **Terminal 2 - Frontend Application:**
 ```bash
 cd frontend
-npm run dev
+pnpm run dev
 ```
 ✅ Frontend running at `http://localhost:5173`
 
@@ -127,14 +127,14 @@ npx kill-port 3001 5173
 # Reset the database (will lose data)
 cd backend
 rm database.sqlite
-npm run dev  # Will recreate the database
+pnpm run dev  # Will recreate the database
 ```
 
 ### Dependencies Issues
 ```bash
 # Clear node_modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
 ```
 
 ## 🎯 Next Steps

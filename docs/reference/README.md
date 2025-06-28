@@ -71,26 +71,26 @@ project-root/
 ### Development
 ```bash
 # Start development servers
-npm run dev              # Both frontend and backend
-cd frontend && npm run dev   # Frontend only
-cd backend && npm run dev    # Backend only
+pnpm run dev              # Both frontend and backend
+cd frontend && pnpm run dev   # Frontend only
+cd backend && pnpm run dev    # Backend only
 
 # Testing
-npm test                 # All tests
-npm run test:coverage    # With coverage
-npm run test:e2e        # End-to-end tests
+pnpm test                 # All tests
+pnpm run test:coverage    # With coverage
+pnpm run test:e2e        # End-to-end tests
 
 # Code quality
-npm run lint            # ESLint check
-npm run format          # Prettier format
-npm run type-check      # TypeScript check
+pnpm run lint            # ESLint check
+pnpm run format          # Prettier format
+pnpm run type-check      # TypeScript check
 ```
 
 ### Production
 ```bash
 # Build for production
-npm run build           # Build both frontend and backend
-npm run start           # Start production server
+pnpm run build           # Build both frontend and backend
+pnpm run start           # Start production server
 
 # Docker deployment
 docker-compose up -d    # Start with Docker
@@ -102,7 +102,7 @@ docker-compose down     # Stop services
 
 ### Development Environment
 - **Node.js**: 18.0+ (20.0+ recommended)
-- **npm**: 9.0+ or yarn 1.22+
+- **pnpm**: 8.0+ or yarn 1.22+
 - **Git**: 2.30+
 - **OS**: Windows 10+, macOS 10.15+, Ubuntu 18.04+
 

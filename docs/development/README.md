@@ -91,43 +91,43 @@ prompt-flow/
 # Clone and install dependencies
 git clone https://github.com/maxazure/prompt-flow.git
 cd prompt-flow
-npm install
-cd frontend && npm install
-cd ../backend && npm install
+pnpm install
+cd frontend && pnpm install
+cd ../backend && pnpm install
 ```
 
 ### 2. Development Server
 ```bash
 # Terminal 1: Backend
 cd backend
-npm run dev
+pnpm run dev
 
 # Terminal 2: Frontend  
 cd frontend
-npm run dev
+pnpm run dev
 ```
 
 ### 3. Testing
 ```bash
 # Run all tests
-npm test
+pnpm test
 
 # Run specific test suites
-cd frontend && npm test           # Frontend unit tests
-cd frontend && npm run test:e2e   # E2E tests
-cd backend && npm test            # Backend tests
+cd frontend && pnpm test           # Frontend unit tests
+cd frontend && pnpm run test:e2e   # E2E tests
+cd backend && pnpm test            # Backend tests
 ```
 
 ### 4. Code Quality
 ```bash
 # Linting
-npm run lint
+pnpm run lint
 
 # Formatting
-npm run format
+pnpm run format
 
 # Type checking
-npm run type-check
+pnpm run type-check
 ```
 
 ## 🎯 Development Principles
@@ -167,19 +167,19 @@ npm run type-check
 ### Frontend Debugging
 ```bash
 # Dev tools with source maps
-npm run dev
+pnpm run dev
 
 # Performance profiling
-npm run perf:analyze
+pnpm run perf:analyze
 
 # Bundle analysis
-npm run analyze
+pnpm run analyze
 ```
 
 ### Backend Debugging
 ```bash
 # Debug mode with nodemon
-npm run dev
+pnpm run dev
 
 # Database inspection
 sqlite3 database.sqlite

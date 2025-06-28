@@ -4,7 +4,7 @@
 
 ### ✅ 环境要求
 - [ ] Node.js 18+ 已安装
-- [ ] npm 或 yarn 包管理器
+- [ ] pnpm 或 yarn 包管理器
 - [ ] Git 版本控制
 - [ ] 域名和 SSL 证书（生产环境）
 - [ ] 数据库服务器（可选，SQLite 可本地运行）
@@ -27,11 +27,11 @@ cd prompt-flow
 
 # 2. 安装后端依赖
 cd backend
-npm install
+pnpm install
 
 # 3. 安装前端依赖
 cd ../frontend
-npm install
+pnpm install
 
 # 4. 配置环境变量
 # 后端 .env
@@ -44,10 +44,10 @@ echo "VITE_API_URL=http://localhost:3001" > frontend/.env
 
 # 5. 启动服务
 # 终端1 - 启动后端
-cd backend && npm run dev
+cd backend && pnpm run dev
 
 # 终端2 - 启动前端
-cd frontend && npm run dev
+cd frontend && pnpm run dev
 ```
 
 ### 访问地址
@@ -64,7 +64,7 @@ cd frontend && npm run dev
 #### 前端部署 (Vercel)
 ```bash
 # 1. 安装 Vercel CLI
-npm i -g vercel
+pnpm i -g vercel
 
 # 2. 部署前端
 cd frontend
@@ -78,7 +78,7 @@ vercel env add VITE_API_URL production
 #### 后端部署 (Railway)
 ```bash
 # 1. 安装 Railway CLI
-npm install -g @railway/cli
+pnpm install -g @railway/cli
 
 # 2. 登录 Railway
 railway login
@@ -142,14 +142,14 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN pnpm install --prod --frozen-lockfile
 
 COPY . .
-RUN npm run build
+RUN pnpm run build
 
 EXPOSE 3001
 
-CMD ["npm", "start"]
+CMD ["pnpm", "start"]
 ```
 
 #### 前端 Dockerfile
@@ -159,10 +159,10 @@ FROM node:18-alpine as builder
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN npm run build
+RUN pnpm run build
 
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
@@ -346,7 +346,7 @@ app.get('/health', (req, res) => {
 ### 日志配置
 ```bash
 # PM2 进程管理
-npm install -g pm2
+pnpm install -g pm2
 
 # 启动应用
 pm2 start ecosystem.config.js
@@ -382,13 +382,13 @@ jobs:
       
       - name: Install dependencies
         run: |
-          cd backend && npm ci
-          cd ../frontend && npm ci
+          cd backend && pnpm install --frozen-lockfile
+          cd ../frontend && pnpm install --frozen-lockfile
       
       - name: Run tests
         run: |
-          cd backend && npm test
-          cd ../frontend && npm test
+          cd backend && pnpm test
+          cd ../frontend && pnpm test
 
   deploy:
     needs: test
