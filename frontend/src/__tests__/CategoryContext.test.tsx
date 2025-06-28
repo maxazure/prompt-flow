@@ -1,8 +1,8 @@
-import React from 'react';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
+import { useEffect } from 'react';
 import { CategoryProvider, useCategory } from '../context/CategoryContext';
 import { CategoryScope, CategoryColors } from '../types';
 import type { Category, CategoryStats, CreateCategoryRequest, UpdateCategoryRequest } from '../types';
@@ -153,7 +153,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode; initialPath?: string }>
 const TestComponent: React.FC<{ onContextValue?: (value: any) => void }> = ({ onContextValue }) => {
   const context = useCategory();
   
-  React.useEffect(() => {
+  useEffect(() => {
     if (onContextValue) {
       onContextValue(context);
     }

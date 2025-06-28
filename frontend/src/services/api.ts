@@ -30,6 +30,11 @@ import type {
   CreateCategoryRequest,
   UpdateCategoryRequest,
   CategoryStats,
+  Project,
+  CreateProjectRequest,
+  UpdateProjectRequest,
+  ProjectQueryOptions,
+  ProjectStats,
 } from '../types';
 
 // 从环境变量获取 API 基础 URL，支持多种配置方式
@@ -349,6 +354,156 @@ export const categoriesAPI = {
     data?: UpdateCategoryRequest;
   }>): Promise<{ message: string; results: any[] }> {
     const response = await api.post('/categories/bulk', { operations });
+    return response.data;
+  },
+};
+
+// Projects API
+export const projectsAPI = {
+  // 获取用户的项目列表
+  async getProjects(params?: ProjectQueryOptions): Promise<{
+    success: boolean;
+    data: Project[];
+    total: number;
+  }> {
+    const response = await api.get('/projects', { params });
+    return response.data;
+  },
+
+  // 获取公开项目列表（无需认证）
+  async getPublicProjects(params?: ProjectQueryOptions): Promise<{
+    success: boolean;
+    data: Project[];
+    total: number;
+  }> {
+    const response = await api.get('/projects/public', { params });
+    return response.data;
+  },
+
+  // 获取项目详情
+  async getProject(id: number): Promise<{
+    success: boolean;
+    data: Project;
+  }> {
+    const response = await api.get(`/projects/${id}`);
+    return response.data;
+  },
+
+  // 创建新项目
+  async createProject(data: CreateProjectRequest): Promise<{
+    success: boolean;
+    data: Project;
+  }> {
+    const response = await api.post('/projects', data);
+    return response.data;
+  },
+
+  // 更新项目
+  async updateProject(id: number, data: UpdateProjectRequest): Promise<{
+    success: boolean;
+    data: Project;
+  }> {
+    const response = await api.put(`/projects/${id}`, data);
+    return response.data;
+  },
+
+  // 删除项目（软删除）
+  async deleteProject(id: number): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    const response = await api.delete(`/projects/${id}`);
+    return response.data;
+  },
+
+  // 获取项目统计信息
+  async getProjectStats(): Promise<{
+    success: boolean;
+    data: ProjectStats;
+  }> {
+    const response = await api.get('/projects/stats');
+    return response.data;
+  },
+
+  // 获取项目中的提示词列表
+  async getProjectPrompts(
+    projectId: number,
+    params?: { limit?: number; offset?: number }
+  ): Promise<{
+    success: boolean;
+    data: Prompt[];
+    total: number;
+  }> {
+    const response = await api.get(`/projects/${projectId}/prompts`, { params });
+    return response.data;
+  },
+
+  // 向项目添加提示词
+  async addPromptToProject(
+    projectId: number, 
+    promptData: {
+      title: string;
+      content: string;
+      description?: string;
+      showInCategory?: boolean;
+    }
+  ): Promise<{
+    success: boolean;
+    data: Prompt;
+  }> {
+    const response = await api.post(`/projects/${projectId}/prompts`, {
+      ...promptData,
+      projectId,
+      isProjectPrompt: true,
+    });
+    return response.data;
+  },
+
+  // 从项目移除提示词
+  async removePromptFromProject(
+    projectId: number, 
+    promptId: number
+  ): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    const response = await api.delete(`/projects/${projectId}/prompts/${promptId}`);
+    return response.data;
+  },
+
+  // 生成项目提示词的组合内容（包含背景）
+  async getCombinedPromptContent(
+    projectId: number,
+    promptId: number,
+    options?: {
+      includeBackground?: boolean;
+      separator?: string;
+    }
+  ): Promise<{
+    success: boolean;
+    data: {
+      content: string;
+      background: string;
+      combinedContent: string;
+    };
+  }> {
+    const response = await api.get(`/projects/${projectId}/prompts/${promptId}/combined`, {
+      params: options
+    });
+    return response.data;
+  },
+
+  // 复制项目提示词（自动包含背景）
+  async copyProjectPrompt(
+    projectId: number,
+    promptId: number
+  ): Promise<{
+    success: boolean;
+    data: {
+      combinedContent: string;
+    };
+  }> {
+    const response = await api.post(`/projects/${projectId}/prompts/${promptId}/copy`);
     return response.data;
   },
 };

@@ -1,4 +1,3 @@
-import React from 'react';
 import InsightsDashboard from '../components/InsightsDashboard';
 import { useAuth } from '../context/AuthContext';
 import { useCategory } from '../context/CategoryContext';

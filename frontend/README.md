@@ -72,22 +72,22 @@ VITE_APP_NAME='My Awesome App'
 
 ```bash
 # 安装依赖
-npm install
+pnpm install
 
 # 启动开发服务器
-npm run dev
+pnpm run dev
 
 # 构建生产版本
-npm run build
+pnpm run build
 
 # 预览生产构建
-npm run preview
+pnpm run preview
 
 # 运行测试
-npm test
+pnpm test
 
 # 运行 linting
-npm run lint
+pnpm run lint
 ```
 
 ## 构建和部署
@@ -96,10 +96,10 @@ npm run lint
 
 ```bash
 # 使用默认环境变量构建
-npm run build
+pnpm run build
 
 # 使用生产环境变量构建
-npm run build -- --mode production
+pnpm run build -- --mode production
 ```
 
 ### Docker 构建
@@ -120,12 +120,12 @@ docker run -p 80:80 promptflow-frontend
 
 1. **构建时注入**：在构建时设置环境变量
    ```bash
-   VITE_API_BASE_URL=https://api.production.com npm run build
+   VITE_API_BASE_URL=https://api.production.com pnpm run build
    ```
 
 2. **使用 .env 文件**：创建 `.env.production` 文件并在构建时使用
    ```bash
-   npm run build -- --mode production
+   pnpm run build -- --mode production
    ```
 
 3. **CI/CD 环境变量**：在 CI/CD 平台（如 GitHub Actions）中设置环境变量

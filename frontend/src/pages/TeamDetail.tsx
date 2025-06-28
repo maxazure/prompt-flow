@@ -1,4 +1,3 @@
-import React from 'react';
 import TeamDetailComponent from '../components/TeamDetail';
 import usePageTitle from '../hooks/usePageTitle';
 

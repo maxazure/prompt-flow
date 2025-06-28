@@ -3,7 +3,7 @@
  * 测试动态表单渲染、验证和用户交互
  */
 
-import React from 'react';
+// import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';

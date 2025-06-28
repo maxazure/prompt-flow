@@ -1,8 +1,8 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CategoryProvider } from './context/CategoryContext';
 import { SearchProvider } from './context/SearchContext';
+import { ProjectProvider } from './context/ProjectContext';
 import Layout from './components/Layout';
 import MainLayout from './components/MainLayout';
 import Home from './pages/Home';
@@ -15,6 +15,8 @@ import EditPrompt from './pages/EditPrompt';
 import Teams from './pages/Teams';
 import TeamDetail from './pages/TeamDetail';
 import Insights from './pages/Insights';
+import Projects from './pages/Projects';
+import ProjectDetail from './pages/ProjectDetail';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -23,7 +25,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 // 使用新布局的页面列表 (分类系统集成页面)
-const MAIN_LAYOUT_PAGES = ['/', '/dashboard', '/category', '/teams', '/insights', '/prompts'];
+const MAIN_LAYOUT_PAGES = ['/', '/dashboard', '/category', '/teams', '/insights', '/prompts', '/projects'];
 
 // 布局选择组件
 const LayoutSelector: React.FC<{ children: React.ReactNode; path: string }> = ({ 
@@ -48,6 +50,7 @@ function App() {
       <Router>
         <SearchProvider>
           <CategoryProvider>
+            <ProjectProvider>
           <Routes>
             {/* 使用新MainLayout的页面 */}
             <Route 
@@ -152,7 +155,28 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/projects"
+              element={
+                <ProtectedRoute>
+                  <LayoutSelector path="/projects">
+                    <Projects />
+                  </LayoutSelector>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/projects/:id"
+              element={
+                <ProtectedRoute>
+                  <LayoutSelector path="/projects">
+                    <ProjectDetail />
+                  </LayoutSelector>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
+            </ProjectProvider>
           </CategoryProvider>
         </SearchProvider>
       </Router>

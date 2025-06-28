@@ -33,6 +33,26 @@ vi.mock('../services/api', () => ({
     createPrompt: vi.fn(),
     updatePrompt: vi.fn(),
     deletePrompt: vi.fn()
+  },
+  projectsAPI: {
+    getProjects: vi.fn().mockResolvedValue({ success: true, data: [], total: 0 }),
+    getProject: vi.fn().mockResolvedValue({ success: true, data: null }),
+    createProject: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    updateProject: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    deleteProject: vi.fn().mockResolvedValue({ success: true }),
+    getProjectPrompts: vi.fn().mockResolvedValue({ success: true, data: [] }),
+    addPromptToProject: vi.fn().mockResolvedValue({ success: true, data: {} }),
+    removePromptFromProject: vi.fn().mockResolvedValue({ success: true }),
+    copyProjectPrompt: vi.fn().mockResolvedValue({ success: true, data: { combinedContent: '' } }),
+    getProjectStats: vi.fn().mockResolvedValue({ 
+      success: true, 
+      data: { 
+        totalProjects: 0, 
+        personalProjects: 0, 
+        teamProjects: 0, 
+        publicProjects: 0 
+      } 
+    })
   }
 }));
 

@@ -3,7 +3,7 @@
  * 测试参数化提示词模态框的交互和功能
  */
 
-import React from 'react';
+// import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';

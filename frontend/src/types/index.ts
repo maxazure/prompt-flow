@@ -14,6 +14,10 @@ export interface Prompt {
   version: number;
   category?: string; // 保留向后兼容
   categoryId?: number; // 新的分类关联
+  projectId?: number; // 项目关联
+  promptNumber?: string; // 项目内编号
+  isProjectPrompt?: boolean; // 是否为项目提示词
+  showInCategory?: boolean; // 是否在分类中显示
   tags?: string[];
   userId: number;
   parentId?: number;
@@ -23,6 +27,7 @@ export interface Prompt {
   updatedAt?: string;
   user?: Pick<User, 'id' | 'username'>;
   categoryInfo?: Category; // 分类详细信息
+  projectInfo?: Project; // 项目详细信息
 }
 
 export interface LoginRequest {
@@ -382,4 +387,89 @@ export const Breakpoints = {
 } as const;
 
 export type BreakpointKey = keyof typeof Breakpoints;
+
+// =====================================================
+// Project Management Types - 项目管理功能
+// =====================================================
+
+// 项目核心数据接口
+export interface Project {
+  id: number;
+  name: string;
+  description?: string;
+  background: string; // 项目背景，用作系统级提示词
+  userId: number; // 项目创建者
+  teamId?: number; // 可选的团队归属
+  isPublic: boolean; // 是否公开
+  isActive: boolean; // 是否激活
+  createdAt: string;
+  updatedAt: string;
+  
+  // 扩展信息
+  promptCount?: number; // 项目中的提示词数量
+  user?: Pick<User, 'id' | 'username'>; // 创建者信息
+  team?: Pick<Team, 'id' | 'name'>; // 团队信息 
+  prompts?: Prompt[]; // 项目中的提示词列表
+}
+
+// 项目创建请求
+export interface CreateProjectRequest {
+  name: string;
+  description?: string;
+  background: string;
+  teamId?: number;
+  isPublic?: boolean;
+}
+
+// 项目更新请求
+export interface UpdateProjectRequest {
+  name?: string;
+  description?: string;
+  background?: string;
+  isPublic?: boolean;
+}
+
+// 项目查询选项
+export interface ProjectQueryOptions {
+  teamId?: number;
+  search?: string;
+  limit?: number;
+  offset?: number;
+}
+
+// 项目统计信息
+export interface ProjectStats {
+  totalProjects: number;
+  personalProjects: number;
+  teamProjects: number;
+  publicProjects: number;
+  recentProjects: Project[];
+  mostActiveProjects: Project[];
+}
+
+// 项目提示词创建请求
+export interface CreateProjectPromptRequest extends CreatePromptRequest {
+  projectId: number;
+  promptNumber?: string;
+  showInCategory?: boolean;
+}
+
+// 项目提示词更新请求
+export interface UpdateProjectPromptRequest extends UpdatePromptRequest {
+  showInCategory?: boolean;
+}
+
+// 项目背景合并配置
+export interface ProjectPromptCombineOptions {
+  includeBackground: boolean; // 是否包含项目背景
+  separator?: string; // 分隔符，默认为 "---"
+  format?: 'simple' | 'detailed'; // 合并格式
+}
+
+// 项目复制配置
+export interface ProjectCopyOptions {
+  combineWithBackground: boolean;
+  copyToClipboard: boolean;
+  showPreview: boolean;
+}
 

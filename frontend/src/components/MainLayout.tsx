@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useCategory } from '../context/CategoryContext';
 import CategorySidebar from './CategorySidebar';
 import TopNavigation from './TopNavigation';
+import ResponsiveEnhancements from './ResponsiveEnhancements';
 import { Breakpoints } from '../types';
 
 // =====================================================
@@ -146,12 +147,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, className = '' }) => 
           )}
 
           {/* 主要内容 */}
-          <div className="main-content-inner">
+          <div className="main-content-inner responsive-container">
             {children}
           </div>
         </div>
       </main>
 
+      {/* 响应式增强组件 */}
+      <ResponsiveEnhancements isMobile={isMobile} isTablet={isTablet} />
+      
       {/* 全局样式注入 */}
       <style>{`
         .main-layout {
@@ -172,7 +176,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, className = '' }) => 
 
         .main-content-inner {
           min-height: calc(100vh - ${isMobile ? '64px' : '0px'});
-          padding: ${isMobile ? '1rem' : '1.5rem'};
+          /* 响应式padding通过媒体查询控制，避免内联样式覆盖 */
         }
 
         /* 自定义滚动条样式 */
@@ -215,6 +219,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, className = '' }) => 
         /* 优化动画性能 */
         .main-content {
           will-change: width, margin-left;
+        }
+        
+        .main-content-inner {
+          will-change: transform;
         }
 
         /* 确保内容不被侧边栏遮挡 */

@@ -36,6 +36,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({ className = '', style }) 
     { name: '首页', path: '/', icon: '🏠' },
     ...(isAuthenticated ? [
       { name: '我的提示词', path: '/dashboard', icon: '📊' },
+      { name: '项目管理', path: '/projects', icon: '📁' },
       { name: '团队', path: '/teams', icon: '👥' },
       { name: '分析', path: '/insights', icon: '📈' },
     ] : []),
