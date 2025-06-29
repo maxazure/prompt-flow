@@ -10,6 +10,10 @@ const categoryService = new CategoryService();
 // GET /api/categories - 获取分类（支持已登录和未登录用户）
 router.get('/', async (req, res) => {
   try {
+    console.log('🔍 Categories API called');
+    console.log('📝 Headers:', req.headers.authorization ? 'Bearer ***' : 'No auth');
+    console.log('📦 Query params:', req.query);
+    
     // 尝试获取用户ID（如果已登录）
     const authHeader = req.headers.authorization;
     let userId: number | null = null;
@@ -19,21 +23,32 @@ router.get('/', async (req, res) => {
         const token = authHeader.substring(7);
         const jwt = require('jsonwebtoken');
         const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
-        userId = decoded.id;
+        userId = decoded.userId;
+        console.log('✅ Authenticated user ID:', userId);
       } catch (error) {
+        console.log('❌ JWT decode error:', error instanceof Error ? error.message : 'Unknown error');
         // Token无效，继续以未登录用户处理
       }
+    } else {
+      console.log('ℹ️  No authentication header provided');
     }
 
     let categories;
     if (userId) {
       // 已登录用户：获取所有可见分类
+      console.log(`🔍 Getting categories for user ${userId}`);
       categories = await categoryService.getUserVisibleCategories(userId);
+      console.log(`📊 Found ${categories.length} categories:`, categories.map(c => `${c.name}(${c.scopeType}:${c.scopeId})`));
+      
+      const personalCategories = categories.filter(c => c.scopeType === CategoryScopeType.PERSONAL && c.scopeId === userId);
+      const teamCategories = categories.filter(c => c.scopeType === CategoryScopeType.TEAM);
+      
+      console.log(`📋 Personal categories: ${personalCategories.length}`, personalCategories.map(c => c.name));
+      console.log(`📋 Team categories: ${teamCategories.length}`, teamCategories.map(c => c.name));
       
       const groupedCategories = {
-        personal: categories.filter(c => c.scopeType === CategoryScopeType.PERSONAL && c.scopeId === userId),
-        team: categories.filter(c => c.scopeType === CategoryScopeType.TEAM),
-        public: categories.filter(c => c.scopeType === CategoryScopeType.PUBLIC),
+        personal: personalCategories,
+        team: teamCategories,
       };
 
       res.json({
@@ -41,16 +56,13 @@ router.get('/', async (req, res) => {
         total: categories.length,
       });
     } else {
-      // 未登录用户：只返回公开分类
-      const publicCategories = await categoryService.getPublicCategories();
-      
+      // 未登录用户：返回空分类（新架构下分类仅供已登录用户使用）
       res.json({
         categories: {
           personal: [],
           team: [],
-          public: publicCategories,
         },
-        total: publicCategories.length,
+        total: 0,
       });
     }
   } catch (error) {
@@ -70,18 +82,20 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// GET /api/categories/my - 获取用户创建的所有分类
+// GET /api/categories/my - 获取用户可见的所有分类（包括未分类）
 router.get('/my', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
     const userId = req.user!.id;
     const allCategories = await categoryService.getUserVisibleCategories(userId);
     
-    // 过滤出用户创建的分类
-    const myCategories = allCategories.filter(c => c.createdBy === userId);
+    console.log(`🔍 User ${userId} has ${allCategories.length} visible categories`);
+    allCategories.forEach(cat => {
+      console.log(`   📁 ${cat.name} (ID: ${cat.id}, scope: ${cat.scopeType})`);
+    });
 
     res.json({
-      categories: myCategories,
-      total: myCategories.length,
+      categories: allCategories,
+      total: allCategories.length,
     });
   } catch (error) {
     console.error('Get my categories error:', error);

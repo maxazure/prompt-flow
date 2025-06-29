@@ -197,22 +197,22 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, className = '' }) => 
           background: rgba(156, 163, 175, 0.8);
         }
 
-        /* 响应式断点处理 */
+        /* 响应式断点处理 - 减少padding以最大化内容区域 */
         @media (max-width: ${Breakpoints.MOBILE}px) {
           .main-content-inner {
-            padding: 1rem;
+            padding: 0.75rem;
           }
         }
 
         @media (min-width: ${Breakpoints.MOBILE}px) and (max-width: ${Breakpoints.TABLET}px) {
           .main-content-inner {
-            padding: 1.25rem;
+            padding: 1rem;
           }
         }
 
         @media (min-width: ${Breakpoints.DESKTOP}px) {
           .main-content-inner {
-            padding: 2rem;
+            padding: 1.25rem;
           }
         }
 

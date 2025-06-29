@@ -7,22 +7,45 @@ import {
   updatePrompt,
   deletePrompt,
   getPromptsByCategory,
+  getAllTags,
 } from '../services/promptService';
 import { PromptVersion } from '../models';
 import { validateCreatePromptData, validateUpdatePromptData } from '../utils/promptValidation';
 
 const router: Router = express.Router();
 
+// GET /api/prompts/tags - Get all available tags with usage counts
+router.get('/tags', optionalAuth, async (req: AuthenticatedRequest, res) => {
+  try {
+    const options = {
+      currentUserId: req.user?.id, // Pass current user ID for permission logic
+    };
+
+    const tags = await getAllTags(options);
+
+    res.json({ tags });
+  } catch (error) {
+    console.error('Get tags error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/prompts/my - Get user's own prompts (both public and private)
 router.get('/my', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const { category, categoryId, search } = req.query;
+    const { category, categoryId, search, tags } = req.query;
+    
+    // Parse tags parameter (expecting comma-separated string)
+    const parsedTags = tags && typeof tags === 'string' 
+      ? tags.split(',').map(tag => tag.trim()).filter(Boolean)
+      : undefined;
     
     const options = {
       userId: req.user!.id,
       category: category as string,
       categoryId: categoryId ? parseInt(categoryId as string) : undefined,
       search: search as string,
+      tags: parsedTags,
     };
 
     const prompts = await getPrompts(options);
@@ -34,15 +57,22 @@ router.get('/my', authenticateToken, async (req: AuthenticatedRequest, res) => {
   }
 });
 
-// GET /api/prompts - Get public prompts  
+// GET /api/prompts - Get prompts (public + user's own if logged in)
 router.get('/', optionalAuth, async (req: AuthenticatedRequest, res) => {
   try {
-    const { category, categoryId, search } = req.query;
+    const { category, categoryId, search, tags } = req.query;
+    
+    // Parse tags parameter (expecting comma-separated string)
+    const parsedTags = tags && typeof tags === 'string' 
+      ? tags.split(',').map(tag => tag.trim()).filter(Boolean)
+      : undefined;
     
     const options = {
       category: category as string,
       categoryId: categoryId ? parseInt(categoryId as string) : undefined,
       search: search as string,
+      tags: parsedTags,
+      currentUserId: req.user?.id, // Pass current user ID for permission logic
     };
 
     const prompts = await getPrompts(options);

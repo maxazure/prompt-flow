@@ -17,9 +17,11 @@ describe('Prompts API', () => {
   });
 
   beforeEach(async () => {
-    // Clean up data
-    await Prompt.destroy({ where: {} });
-    await User.destroy({ where: {} });
+    // Clean up data using raw SQL to avoid foreign key issues in SQLite
+    await sequelize.query('PRAGMA foreign_keys = OFF', { raw: true });
+    await sequelize.query('DELETE FROM prompts', { raw: true });
+    await sequelize.query('DELETE FROM users', { raw: true });
+    await sequelize.query('PRAGMA foreign_keys = ON', { raw: true });
 
     // Create test user
     testUser = await User.create({

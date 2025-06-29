@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useCategory } from '../context/CategoryContext';
 import { useSearch } from '../context/SearchContext';
 import { CategoryScope } from '../types';
@@ -25,6 +26,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   isTablet,
   onToggle,
 }) => {
+  const { isAuthenticated } = useAuth();
   const { 
     categories, 
     selectedCategory, 
@@ -38,7 +40,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   const { searchTerm, setSearchTerm, clearSearch } = useSearch();
   const navigate = useNavigate();
   const [expandedGroups, setExpandedGroups] = useState(
-    new Set(['personal', 'team', 'public'])
+    new Set(['personal', 'team'])
   );
   const [showCreateForm, setShowCreateForm] = useState(false);
 
@@ -58,7 +60,6 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   const groupConfig = {
     personal: { icon: '👤', title: '个人分类', scope: CategoryScope.PERSONAL },
     team: { icon: '👥', title: '团队分类', scope: CategoryScope.TEAM },
-    public: { icon: '🌍', title: '公开分类', scope: CategoryScope.PUBLIC },
   };
 
   // 侧边栏样式
@@ -166,8 +167,8 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
 
           {!loading && !error && (
             <>
-              {/* 悬浮新增分类按钮 */}
-              {!collapsed && (
+              {/* 悬浮新增分类按钮 (仅认证用户可见) */}
+              {!collapsed && isAuthenticated && (
                 <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 p-3">
                   <button
                     className="w-full px-3 py-2 bg-blue-50 text-blue-600 rounded-md
@@ -219,8 +220,8 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
           )}
         </div>
 
-        {/* 底部操作区域 - 设置按钮 */}
-        {!isMobile && (
+        {/* 底部操作区域 - 设置按钮 (仅认证用户可见) */}
+        {!isMobile && isAuthenticated && (
           <div className="sidebar-footer border-t border-gray-200 p-4 space-y-2">
             {collapsed ? (
               <>

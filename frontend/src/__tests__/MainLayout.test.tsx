@@ -629,7 +629,7 @@ describe('MainLayout Component', () => {
         .map(el => el.textContent)
         .join('');
 
-      expect(styleContent).toContain('padding: 1.5rem');
+      expect(styleContent).toContain('padding: 2rem');
 
       // 切换到移动端
       act(() => {

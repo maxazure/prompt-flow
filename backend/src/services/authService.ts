@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models';
+import { createUncategorizedCategory } from './uncategorizedService';
 
 export interface RegisterData {
   username: string;
@@ -37,6 +38,14 @@ export const registerUser = async (userData: RegisterData) => {
     password: hashedPassword,
   });
 
+  // Create default "Uncategorized" category for the new user
+  try {
+    await createUncategorizedCategory(user.id);
+  } catch (error) {
+    console.error('Failed to create uncategorized category for new user:', error);
+    // Don't fail registration if category creation fails
+  }
+
   // Generate JWT token
   const token = jwt.sign(
     { userId: user.id, email: user.email },
@@ -52,17 +61,28 @@ export const registerUser = async (userData: RegisterData) => {
 export const loginUser = async (loginData: LoginData) => {
   const { email, password } = loginData;
 
+  console.log('🔍 Login attempt for email:', email);
+
   // Find user by email
   const user = await User.findOne({ where: { email } });
   if (!user) {
+    console.log('❌ User not found for email:', email);
     throw new Error('Invalid credentials');
   }
 
+  console.log('✅ User found:', { id: user.id, username: user.username, email: user.email });
+
   // Check password
+  console.log('🔐 Comparing password...');
   const isPasswordValid = await bcrypt.compare(password, user.password);
+  console.log('Password validation result:', isPasswordValid);
+  
   if (!isPasswordValid) {
+    console.log('❌ Password validation failed');
     throw new Error('Invalid credentials');
   }
+
+  console.log('🎉 Login successful for user:', user.username);
 
   // Generate JWT token
   const token = jwt.sign(

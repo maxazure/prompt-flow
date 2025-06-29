@@ -71,20 +71,6 @@ describe('Category Model', () => {
       expect(category.scopeId).toBe(team.id);
     });
 
-    it('should create a public category successfully', async () => {
-      const categoryData = {
-        name: '编程',
-        description: '公开编程分类',
-        scopeType: CategoryScopeType.PUBLIC,
-        createdBy: testUser.id,
-      };
-
-      const category = await Category.create(categoryData);
-
-      expect(category.name).toBe('编程');
-      expect(category.scopeType).toBe(CategoryScopeType.PUBLIC);
-      expect(category.scopeId).toBeUndefined();
-    });
 
     it('should default isActive to true', async () => {
       const category = await Category.create({
@@ -267,17 +253,5 @@ describe('Category Model', () => {
       expect(category.scopeId).toBeUndefined();
     });
 
-    it('should not require scopeId for public categories', async () => {
-      const validData = {
-        name: '公开分类',
-        scopeType: CategoryScopeType.PUBLIC,
-        createdBy: testUser.id,
-        // scopeId is intentionally null for public categories
-      };
-
-      const category = await Category.create(validData);
-      expect(category.scopeId).toBeUndefined();
-      expect(category.scopeType).toBe(CategoryScopeType.PUBLIC);
-    });
   });
 });

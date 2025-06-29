@@ -54,6 +54,11 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
     setShowMenu(true);
   };
 
+  // 检查是否是未分类分类
+  const isUncategorized = () => {
+    return category.name === '未分类' && category.scopeType === 'personal';
+  };
+
   // 获取权限信息
   const getPermissionInfo = () => {
     const scopeIcons = {
@@ -105,11 +110,21 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
   };
 
   const handleDelete = async () => {
+    // 防止删除未分类分类
+    if (category.name === '未分类' && category.scopeType === 'personal') {
+      alert('不能删除默认的未分类分类');
+      setShowMenu(false);
+      return;
+    }
+
     if (window.confirm(`确定要删除分类 "${category.name}" 吗？`)) {
       try {
         await deleteCategory(category.id);
       } catch (error) {
         console.error('Failed to delete category:', error);
+        if (error instanceof Error && error.message.includes('Cannot delete the default uncategorized category')) {
+          alert('不能删除默认的未分类分类');
+        }
       }
     }
     setShowMenu(false);
@@ -315,6 +330,11 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
                 <span className="truncate text-sm font-medium">
                   {category.name}
                 </span>
+                {isUncategorized() && (
+                  <span className="text-xs text-gray-500 bg-gray-100 px-1 rounded" title="默认分类">
+                    默认
+                  </span>
+                )}
                 <span className="text-xs flex-shrink-0" title={`${getPermissionInfo().name}分类`}>
                   {getPermissionInfo().icon}
                 </span>
@@ -416,15 +436,25 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
                 </svg>
                 编辑分类
               </button>
-              <button
-                onClick={handleDelete}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                删除分类
-              </button>
+              {!isUncategorized() && (
+                <button
+                  onClick={handleDelete}
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  删除分类
+                </button>
+              )}
+              {isUncategorized() && (
+                <div className="px-3 py-2 text-xs text-gray-500 flex items-center gap-2">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  默认分类，无法删除
+                </div>
+              )}
             </>
           )}
 

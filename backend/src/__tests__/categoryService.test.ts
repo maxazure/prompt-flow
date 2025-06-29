@@ -93,20 +93,6 @@ describe('CategoryService', () => {
       expect(category.createdBy).toBe(testUser1.id);
     });
 
-    it('should create a public category successfully', async () => {
-      const categoryData = {
-        name: '编程',
-        description: '公开编程分类',
-        scopeType: CategoryScopeType.PUBLIC,
-      };
-
-      const category = await categoryService.createCategory(categoryData, testUser1.id);
-
-      expect(category.name).toBe('编程');
-      expect(category.scopeType).toBe(CategoryScopeType.PUBLIC);
-      expect(category.scopeId).toBeUndefined();
-      expect(category.createdBy).toBe(testUser1.id);
-    });
 
     it('should prevent duplicate personal category names for same user', async () => {
       await categoryService.createCategory({
@@ -200,10 +186,6 @@ describe('CategoryService', () => {
         scopeId: testTeam.id,
       }, testUser2.id);
 
-      await categoryService.createCategory({
-        name: '编程',
-        scopeType: CategoryScopeType.PUBLIC,
-      }, testUser1.id);
     });
 
     it('should return user personal, team, and public categories', async () => {
@@ -214,7 +196,6 @@ describe('CategoryService', () => {
       expect(categoryNames).toContain('论文'); // user1 personal
       expect(categoryNames).toContain('策划'); // team category
       expect(categoryNames).toContain('开发'); // team category
-      expect(categoryNames).toContain('编程'); // public category
       expect(categoryNames).not.toContain('美食'); // user2 personal, not visible to user1
     });
 
@@ -227,13 +208,13 @@ describe('CategoryService', () => {
       const teamCategories = categories.filter(c => 
         c.scopeType === CategoryScopeType.TEAM
       );
-      const publicCategories = categories.filter(c => 
-        c.scopeType === CategoryScopeType.PUBLIC
-      );
-
-      expect(personalCategories).toHaveLength(2); // 网站建设, 论文
+      expect(personalCategories).toHaveLength(3); // 未分类, 网站建设, 论文 (with auto-created uncategorized)
       expect(teamCategories).toHaveLength(2); // 策划, 开发
-      expect(publicCategories).toHaveLength(1); // 编程
+      
+      // Verify that uncategorized category was auto-created
+      const uncategorizedCategory = personalCategories.find(c => c.name === '未分类');
+      expect(uncategorizedCategory).toBeDefined();
+      expect(uncategorizedCategory!.description).toBe('默认分类，用于存放未分类的提示词');
     });
 
     it('should handle user with no team memberships', async () => {
@@ -252,7 +233,6 @@ describe('CategoryService', () => {
 
       const categoryNames = categories.map(c => c.name);
       expect(categoryNames).toContain('独立工作'); // personal
-      expect(categoryNames).toContain('编程'); // public
       expect(categoryNames).not.toContain('策划'); // team category, not accessible
     });
   });
@@ -369,7 +349,6 @@ describe('CategoryService', () => {
   describe('canUserUseCategory', () => {
     let personalCategory: Category;
     let teamCategory: Category;
-    let publicCategory: Category;
 
     beforeEach(async () => {
       personalCategory = await categoryService.createCategory({
@@ -381,11 +360,6 @@ describe('CategoryService', () => {
         name: '团队分类',
         scopeType: CategoryScopeType.TEAM,
         scopeId: testTeam.id,
-      }, testUser1.id);
-
-      publicCategory = await categoryService.createCategory({
-        name: '公开分类',
-        scopeType: CategoryScopeType.PUBLIC,
       }, testUser1.id);
     });
 
@@ -407,15 +381,5 @@ describe('CategoryService', () => {
       expect(canUse2).toBe(true);
     });
 
-    it('should allow anyone to use public category', async () => {
-      const outsideUser = await User.create({
-        username: 'outsider',
-        email: 'outsider@example.com',
-        password: 'hashedpassword',
-      });
-
-      const canUse = await categoryService.canUserUseCategory(outsideUser.id, publicCategory.id);
-      expect(canUse).toBe(true);
-    });
   });
 });

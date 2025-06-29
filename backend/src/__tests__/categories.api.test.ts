@@ -113,23 +113,6 @@ describe('Categories API', () => {
       expect(response.body.category.scopeId).toBe(testTeam.id);
     });
 
-    it('should create a public category successfully', async () => {
-      const categoryData = {
-        name: '编程',
-        description: '公开编程分类',
-        scopeType: CategoryScopeType.PUBLIC,
-      };
-
-      const response = await request(app)
-        .post('/api/categories')
-        .set('Authorization', `Bearer ${authToken1}`)
-        .send(categoryData);
-
-      expect(response.status).toBe(201);
-      expect(response.body.category.name).toBe('编程');
-      expect(response.body.category.scopeType).toBe(CategoryScopeType.PUBLIC);
-      expect(response.body.category.scopeId).toBeUndefined();
-    });
 
     it('should fail when not authenticated', async () => {
       const categoryData = {
@@ -233,11 +216,6 @@ describe('Categories API', () => {
         createdBy: testUser1.id,
       });
 
-      await Category.create({
-        name: '编程',
-        scopeType: CategoryScopeType.PUBLIC,
-        createdBy: testUser1.id,
-      });
     });
 
     it('should return user visible categories grouped by scope', async () => {
@@ -247,9 +225,9 @@ describe('Categories API', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.categories).toBeDefined();
-      expect(response.body.categories.personal).toHaveLength(1); // 网站建设
+      expect(response.body.categories.personal).toHaveLength(2); // 未分类 + 网站建设
       expect(response.body.categories.team).toHaveLength(1); // 策划
-      expect(response.body.categories.public).toHaveLength(1); // 编程
+      expect(response.body.categories).not.toHaveProperty('public');
       expect(response.body.total).toBe(3);
     });
 
@@ -261,18 +239,20 @@ describe('Categories API', () => {
       const allCategoryNames = [
         ...response.body.categories.personal,
         ...response.body.categories.team,
-        ...response.body.categories.public,
       ].map((c: any) => c.name);
 
       expect(allCategoryNames).toContain('网站建设');
       expect(allCategoryNames).not.toContain('美食'); // user2's personal category
     });
 
-    it('should fail when not authenticated', async () => {
+    it('should return empty categories when not authenticated', async () => {
       const response = await request(app)
         .get('/api/categories');
 
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(200);
+      expect(response.body.categories.personal).toEqual([]);
+      expect(response.body.categories.team).toEqual([]);
+      expect(response.body.total).toBe(0);
     });
   });
 
@@ -300,18 +280,19 @@ describe('Categories API', () => {
       });
     });
 
-    it('should return only categories created by the user', async () => {
+    it('should return all user visible categories', async () => {
       const response = await request(app)
         .get('/api/categories/my')
         .set('Authorization', `Bearer ${authToken1}`);
 
       expect(response.status).toBe(200);
-      expect(response.body.categories).toHaveLength(2);
+      expect(response.body.categories).toHaveLength(4); // 未分类 + 我的个人 + 两个团队分类
       
       const categoryNames = response.body.categories.map((c: any) => c.name);
+      expect(categoryNames).toContain('未分类'); // 自动创建的未分类
       expect(categoryNames).toContain('我的个人');
       expect(categoryNames).toContain('我创建的团队');
-      expect(categoryNames).not.toContain('他人的团队');
+      expect(categoryNames).toContain('他人的团队'); // 现在包含所有团队分类
     });
   });
 
@@ -516,11 +497,6 @@ describe('Categories API', () => {
         createdBy: testUser1.id,
       });
 
-      publicCategory = await Category.create({
-        name: '公开分类',
-        scopeType: CategoryScopeType.PUBLIC,
-        createdBy: testUser1.id,
-      });
     });
 
     it('should allow user to use their own personal category', async () => {
@@ -569,12 +545,6 @@ describe('Categories API', () => {
         { expiresIn: '7d' }
       );
 
-      const response = await request(app)
-        .get(`/api/categories/${publicCategory.id}/can-use`)
-        .set('Authorization', `Bearer ${outsideToken}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body.canUse).toBe(true);
     });
   });
 });

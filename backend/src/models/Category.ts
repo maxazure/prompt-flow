@@ -3,8 +3,7 @@ import { sequelize } from '../config/database';
 
 export enum CategoryScopeType {
   PERSONAL = 'personal',
-  TEAM = 'team',
-  PUBLIC = 'public'
+  TEAM = 'team'
 }
 
 interface CategoryAttributes {

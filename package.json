@@ -1,6 +1,20 @@
 {
+  "name": "prompt-flow",
+  "version": "1.0.0",
+  "description": "AI提示词管理平台",
+  "scripts": {
+    "dev": "./start-dev-simple.sh",
+    "dev:interactive": "./start-dev.sh",
+    "dev:win": "start-dev.bat",
+    "start": "./start-dev-simple.sh",
+    "stop": "./start-dev-simple.sh stop",
+    "status": "./start-dev-simple.sh status",
+    "logs": "./start-dev-simple.sh logs",
+    "kill-ports": "npx kill-port 3001 5173"
+  },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.10"
+    "@tailwindcss/postcss": "^4.1.10",
+    "kill-port": "^2.0.1"
   },
   "dependencies": {
     "mysql2": "^3.14.1"

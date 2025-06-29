@@ -101,13 +101,40 @@ export const authAPI = {
 
 // Prompts API
 export const promptsAPI = {
-  async getPrompts(params?: { category?: string; isTemplate?: boolean }): Promise<{ prompts: Prompt[] }> {
-    const response = await api.get('/prompts', { params });
+  async getPrompts(params?: { 
+    category?: string; 
+    categoryId?: number;
+    isTemplate?: boolean; 
+    search?: string;
+    tags?: string[];
+  }): Promise<{ prompts: Prompt[] }> {
+    // Convert tags array to comma-separated string for API
+    const apiParams = {
+      ...params,
+      tags: params?.tags?.join(',')
+    };
+    const response = await api.get('/prompts', { params: apiParams });
     return response.data;
   },
 
-  async getMyPrompts(params?: { category?: string; isTemplate?: boolean }): Promise<{ prompts: Prompt[] }> {
-    const response = await api.get('/prompts/my', { params });
+  async getMyPrompts(params?: { 
+    category?: string; 
+    categoryId?: number;
+    isTemplate?: boolean; 
+    search?: string;
+    tags?: string[];
+  }): Promise<{ prompts: Prompt[] }> {
+    // Convert tags array to comma-separated string for API
+    const apiParams = {
+      ...params,
+      tags: params?.tags?.join(',')
+    };
+    const response = await api.get('/prompts/my', { params: apiParams });
+    return response.data;
+  },
+
+  async getTags(): Promise<{ tags: Array<{ name: string; count: number }> }> {
+    const response = await api.get('/prompts/tags');
     return response.data;
   },
 
@@ -301,6 +328,12 @@ export const categoriesAPI = {
     onlyActive?: boolean 
   }): Promise<{ categories: Category[] }> {
     const response = await api.get('/categories', { params });
+    return response.data;
+  },
+
+  // 获取用户的所有可见分类（推荐使用，包括未分类）
+  async getMyCategories(): Promise<{ categories: Category[] }> {
+    const response = await api.get('/categories/my');
     return response.data;
   },
 

@@ -57,7 +57,7 @@ const initialState: CategoryState = {
   error: null,
   stats: null,
   searchTerm: '',
-  expandedGroups: new Set(['personal', 'team', 'public']), // 默认展开所有分组
+  expandedGroups: new Set(['personal', 'team']), // 默认展开所有分组
   lastFetchTime: null,
   cacheExpiryTime: 5 * 60 * 1000, // 5 minutes cache
 };

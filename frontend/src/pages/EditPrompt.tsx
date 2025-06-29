@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import MainLayout from '../components/MainLayout';
 import LazyPromptEditor from '../components/LazyPromptEditor';
 import { promptsAPI, versionsAPI } from '../services/api';
 import type { CreatePromptRequest, Prompt } from '../types';
@@ -112,34 +113,38 @@ const EditPrompt: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading prompt...</p>
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading prompt...</p>
+          </div>
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
   if (error && !prompt) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 text-red-400">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 text-red-400">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Cannot Edit Prompt</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button
+              onClick={() => navigate('/')}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              Go to Dashboard
+            </button>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Cannot Edit Prompt</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-          >
-            Go to Dashboard
-          </button>
         </div>
-      </div>
+      </MainLayout>
     );
   }
 
@@ -148,42 +153,45 @@ const EditPrompt: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      {error && (
-        <div className="max-w-7xl mx-auto mb-6">
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Error updating prompt</h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>{error}</p>
+    <MainLayout>
+      <div className="py-6">
+        {error && (
+          <div className="mb-6">
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">Error updating prompt</h3>
+                  <div className="mt-2 text-sm text-red-700">
+                    <p>{error}</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-      
-      <LazyPromptEditor
-        initialData={{
-          title: prompt.title,
-          content: prompt.content,
-          description: prompt.description || '',
-          category: prompt.category || '',
-          tags: prompt.tags || [],
-          isPublic: prompt.isPublic,
-        }}
-        onSave={handleSave}
-        onCancel={handleCancel}
-        isEditing={true}
-        loading={saveLoading}
-      />
-    </div>
+        )}
+        
+        <LazyPromptEditor
+          initialData={{
+            title: prompt.title,
+            content: prompt.content,
+            description: prompt.description || '',
+            category: prompt.category || '',
+            categoryId: prompt.categoryId,
+            tags: prompt.tags || [],
+            isPublic: prompt.isPublic,
+          }}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          isEditing={true}
+          loading={saveLoading}
+        />
+      </div>
+    </MainLayout>
   );
 };
 

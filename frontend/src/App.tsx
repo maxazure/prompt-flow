@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import PromptDetail from './pages/PromptDetail';
 import Dashboard from './pages/Dashboard';
+import MyPrompts from './pages/MyPrompts';
 import CreatePrompt from './pages/CreatePrompt';
 import EditPrompt from './pages/EditPrompt';
 import Teams from './pages/Teams';
@@ -20,12 +21,25 @@ import ProjectDetail from './pages/ProjectDetail';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  
+  // 在认证状态加载期间显示loading，防止错误的重定向
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
 // 使用新布局的页面列表 (分类系统集成页面)
-const MAIN_LAYOUT_PAGES = ['/', '/dashboard', '/category', '/teams', '/insights', '/prompts', '/projects'];
+const MAIN_LAYOUT_PAGES = ['/', '/dashboard', '/my-prompts', '/category', '/teams', '/insights', '/prompts', '/projects', '/create'];
 
 // 布局选择组件
 const LayoutSelector: React.FC<{ children: React.ReactNode; path: string }> = ({ 
@@ -79,23 +93,25 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/my-prompts"
+              element={
+                <ProtectedRoute>
+                  <LayoutSelector path="/my-prompts">
+                    <MyPrompts />
+                  </LayoutSelector>
+                </ProtectedRoute>
+              }
+            />
 
             {/* 使用传统Layout的页面 */}
             <Route 
               path="/login" 
-              element={
-                <Layout>
-                  <Login />
-                </Layout>
-              } 
+              element={<Login />} 
             />
             <Route 
               path="/register" 
-              element={
-                <Layout>
-                  <Register />
-                </Layout>
-              } 
+              element={<Register />} 
             />
             <Route 
               path="/prompts/:id" 
@@ -109,9 +125,9 @@ function App() {
               path="/create"
               element={
                 <ProtectedRoute>
-                  <Layout>
+                  <LayoutSelector path="/create">
                     <CreatePrompt />
-                  </Layout>
+                  </LayoutSelector>
                 </ProtectedRoute>
               }
             />

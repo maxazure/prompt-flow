@@ -247,8 +247,7 @@ export interface PromptValidation {
 // 分类作用域枚举
 export const CategoryScope = {
   PERSONAL: 'personal',
-  TEAM: 'team', 
-  PUBLIC: 'public'
+  TEAM: 'team'
 } as const;
 
 export type CategoryScope = typeof CategoryScope[keyof typeof CategoryScope];

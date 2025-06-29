@@ -130,8 +130,6 @@ const CreateCategoryButton: React.FC<CreateCategoryButtonProps> = ({
         return '个人分类';
       case CategoryScope.TEAM:
         return '团队分类';
-      case CategoryScope.PUBLIC:
-        return '公开分类';
       default:
         return '个人分类';
     }
@@ -255,7 +253,6 @@ const CreateCategoryButton: React.FC<CreateCategoryButtonProps> = ({
               >
                 <option value={CategoryScope.PERSONAL}>{getScopeDisplayName(CategoryScope.PERSONAL)}</option>
                 <option value={CategoryScope.TEAM}>{getScopeDisplayName(CategoryScope.TEAM)}</option>
-                <option value={CategoryScope.PUBLIC}>{getScopeDisplayName(CategoryScope.PUBLIC)}</option>
               </select>
             </div>
 

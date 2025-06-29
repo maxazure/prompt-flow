@@ -1,12 +1,14 @@
 import { Category, CategoryScopeType } from '../models/Category';
-import { User, Team, TeamMember, TeamRole } from '../models';
+import { User, Team, TeamMember, TeamRole, Prompt } from '../models';
 import { Op } from 'sequelize';
+import { sequelize } from '../config/database';
+import { ensureUncategorizedCategory } from './uncategorizedService';
 
 export interface CreateCategoryData {
   name: string;
   description?: string;
   scopeType: CategoryScopeType;
-  scopeId?: number; // userId for personal, teamId for team, undefined for public
+  scopeId?: number; // userId for personal, teamId for team
   color?: string;
 }
 
@@ -35,8 +37,6 @@ export class CategoryService {
       if (!hasPermission) {
         throw new Error('User does not have permission to create team categories');
       }
-    } else if (scopeType === CategoryScopeType.PUBLIC) {
-      finalScopeId = undefined; // 公开分类不需要 scopeId
     }
 
     // 检查重复名称
@@ -57,6 +57,9 @@ export class CategoryService {
   }
 
   async getUserVisibleCategories(userId: number): Promise<Category[]> {
+    // 确保用户有未分类分类
+    await ensureUncategorizedCategory(userId);
+
     // 获取用户所属的团队ID列表
     const teamMemberships = await TeamMember.findAll({
       where: { 
@@ -68,17 +71,12 @@ export class CategoryService {
     
     const teamIds = teamMemberships.map(tm => tm.teamId);
 
-    // 构建查询条件：个人分类 + 团队分类 + 公开分类
+    // 构建查询条件：个人分类 + 团队分类
     const whereConditions: any[] = [
       // 个人分类（用户自己的）
       {
         scopeType: CategoryScopeType.PERSONAL,
         scopeId: userId,
-        isActive: true,
-      },
-      // 公开分类
-      {
-        scopeType: CategoryScopeType.PUBLIC,
         isActive: true,
       },
     ];
@@ -97,24 +95,118 @@ export class CategoryService {
         [Op.or]: whereConditions,
       },
       order: [
-        ['scopeType', 'ASC'], // personal < team < public
+        // 未分类分类排在最前面
+        [
+          sequelize.literal(`CASE WHEN name = '未分类' THEN 0 ELSE 1 END`),
+          'ASC'
+        ],
+        ['scopeType', 'ASC'], // personal < team
         ['name', 'ASC'],
       ],
     });
 
-    return categories;
+    // 为每个分类添加提示词计数
+    const categoriesWithCount = await this.addPromptCountToCategories(categories, userId);
+    
+    return categoriesWithCount;
   }
 
-  async getPublicCategories(): Promise<Category[]> {
-    const categories = await Category.findAll({
-      where: {
-        scopeType: CategoryScopeType.PUBLIC,
-        isActive: true,
-      },
-      order: [['name', 'ASC']],
-    });
+  /**
+   * 为分类列表添加提示词计数
+   * @param categories 分类列表
+   * @param userId 当前用户ID（用于权限过滤）
+   * @returns 带有promptCount字段的分类列表
+   */
+  async addPromptCountToCategories(categories: Category[], userId: number): Promise<any[]> {
+    const categoryIds = categories.map(cat => cat.id);
     
-    return categories;
+    if (categoryIds.length === 0) {
+      return [];
+    }
+
+    try {
+      // 优化的批量查询：根据分类类型进行不同的计数逻辑
+      const personalCategoryIds = categories
+        .filter(cat => cat.scopeType === CategoryScopeType.PERSONAL && cat.scopeId === userId)
+        .map(cat => cat.id);
+      
+      const teamCategoryIds = categories
+        .filter(cat => cat.scopeType === CategoryScopeType.TEAM)
+        .map(cat => cat.id);
+
+      // 创建分类ID到计数的映射
+      const countMap = new Map<number, number>();
+
+      // 个人分类：计算用户可见的提示词（公开的 + 自己的）
+      if (personalCategoryIds.length > 0) {
+        const personalCounts = await this.getPromptCountsForCategories(
+          personalCategoryIds, 
+          {
+            [Op.or]: [
+              { isPublic: true },    // 所有公开提示词
+              { userId }             // 用户自己的提示词（包括私有）
+            ]
+          }
+        );
+        personalCounts.forEach((item: any) => {
+          countMap.set(item.categoryId, parseInt(item.count) || 0);
+        });
+      }
+
+      // 团队分类：计算用户可见的提示词（公开的 + 自己的）
+      if (teamCategoryIds.length > 0) {
+        const teamCounts = await this.getPromptCountsForCategories(
+          teamCategoryIds, 
+          { 
+            [Op.or]: [
+              { isPublic: true },    // 所有公开提示词
+              { userId }             // 用户自己的提示词（包括私有）
+            ]
+          }
+        );
+        teamCounts.forEach((item: any) => {
+          countMap.set(item.categoryId, parseInt(item.count) || 0);
+        });
+      }
+
+      // 为每个分类添加promptCount字段
+      return categories.map(category => ({
+        ...category.toJSON(),
+        promptCount: countMap.get(category.id) || 0
+      }));
+
+    } catch (error) {
+      console.error('Error calculating prompt counts for categories:', error);
+      // 发生错误时，返回计数为0的分类列表
+      return categories.map(category => ({
+        ...category.toJSON(),
+        promptCount: 0
+      }));
+    }
+  }
+
+  /**
+   * 为指定分类获取提示词计数的通用方法
+   * @param categoryIds 分类ID列表
+   * @param whereCondition 额外的查询条件
+   * @returns 包含计数的结果
+   */
+  private async getPromptCountsForCategories(
+    categoryIds: number[], 
+    whereCondition: any
+  ): Promise<any[]> {
+    return await Prompt.findAll({
+      attributes: [
+        'categoryId',
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      where: {
+        categoryId: { [Op.in]: categoryIds },
+        ...whereCondition
+      },
+      group: ['categoryId'],
+      raw: true
+    });
   }
 
   async getCategoryStats(): Promise<any> {
@@ -131,18 +223,11 @@ export class CategoryService {
         isActive: true 
       } 
     });
-    const publicCategories = await Category.count({ 
-      where: { 
-        scopeType: CategoryScopeType.PUBLIC, 
-        isActive: true 
-      } 
-    });
 
     return {
       total: totalCategories,
       personal: personalCategories,
       team: teamCategories,
-      public: publicCategories,
     };
   }
 
@@ -179,6 +264,13 @@ export class CategoryService {
       throw new Error('Category not found');
     }
 
+    // 检查是否是未分类分类，不允许删除
+    if (category.name === '未分类' && 
+        category.scopeType === CategoryScopeType.PERSONAL && 
+        category.scopeId === userId) {
+      throw new Error('Cannot delete the default uncategorized category');
+    }
+
     // 检查权限
     const hasPermission = await this.canUserManageCategory(userId, category);
     if (!hasPermission) {
@@ -202,9 +294,6 @@ export class CategoryService {
       case CategoryScopeType.TEAM:
         if (!category.scopeId) return false;
         return await this.isUserTeamMember(userId, category.scopeId);
-        
-      case CategoryScopeType.PUBLIC:
-        return true;
         
       default:
         return false;
@@ -243,7 +332,6 @@ export class CategoryService {
     } else if (scopeType === CategoryScopeType.TEAM) {
       whereCondition.scopeId = scopeId;
     }
-    // 对于 PUBLIC 类型，不需要 scopeId 条件
 
     const existingCategory = await Category.findOne({
       where: whereCondition,
@@ -265,10 +353,6 @@ export class CategoryService {
         if (category.createdBy === userId) return true;
         if (!category.scopeId) return false;
         return await this.canUserManageTeamCategories(userId, category.scopeId);
-        
-      case CategoryScopeType.PUBLIC:
-        // 公开分类：只有创建者或系统管理员可以管理（暂时只允许创建者）
-        return category.createdBy === userId;
         
       default:
         return false;

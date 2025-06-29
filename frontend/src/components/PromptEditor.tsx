@@ -42,6 +42,25 @@ const PromptEditor: React.FC<PromptEditorProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Remove refreshCategories dependency to prevent infinite loop
 
+  // 处理legacy category到categoryId的映射
+  useEffect(() => {
+    if (categories.length > 0 && initialData?.category && !formData.categoryId) {
+      // 如果有legacy category但没有categoryId，尝试映射
+      const matchedCategory = categories.find(cat => cat.name === initialData.category);
+      if (matchedCategory) {
+        console.log('🔄 Mapping legacy category to categoryId:', {
+          legacyCategory: initialData.category,
+          categoryId: matchedCategory.id
+        });
+        setFormData(prev => ({
+          ...prev,
+          categoryId: matchedCategory.id,
+          category: undefined // 清除旧的category字段
+        }));
+      }
+    }
+  }, [categories, initialData?.category, formData.categoryId]);
+
   useEffect(() => {
     // Auto-save to localStorage
     const autoSave = setTimeout(() => {

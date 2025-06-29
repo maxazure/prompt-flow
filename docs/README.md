@@ -67,6 +67,7 @@ Deep dive into system architecture and design decisions.
 Quick reference materials and technical specifications.
 
 - **[Configuration Reference](./reference/configuration.md)** - All configuration options
+- **[Phase 4 Completion](./reference/phase4-completion.md)** - Latest functionality updates and UX improvements
 - **[Error Codes](./reference/error-codes.md)** - API error codes and messages
 - **[Changelog](./reference/changelog.md)** - Version history and changes
 - **[Troubleshooting](./reference/troubleshooting.md)** - Common issues and solutions

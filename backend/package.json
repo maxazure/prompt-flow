@@ -11,7 +11,8 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
-    "migrate:categories": "ts-node src/scripts/migrateCategoryData.ts"
+    "migrate:categories": "ts-node src/scripts/migrateCategoryData.ts",
+    "seed:test-data": "ts-node src/scripts/insertTestDataSimple.ts"
   },
   "keywords": [],
   "author": "",

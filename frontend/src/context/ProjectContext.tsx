@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
+import { useAuth } from './AuthContext';
 import { projectsAPI } from '../services/api';
 import type { 
   Project, 
@@ -146,9 +147,16 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 // Provider component
 export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(projectReducer, initialState);
+  const { isAuthenticated } = useAuth();
 
   // Load projects with caching
   const loadProjects = useCallback(async (options?: ProjectQueryOptions) => {
+    // Don't fetch projects for unauthenticated users
+    if (!isAuthenticated) {
+      console.log('🔒 Skipping project fetch - user not authenticated');
+      return;
+    }
+
     const now = Date.now();
     const cacheValid = state.lastFetchTime && 
                       (now - state.lastFetchTime) < state.cacheExpiryTime;
@@ -174,7 +182,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     dispatch({ type: 'SET_LAST_OPERATION', payload: operation });
     await operation();
-  }, [state.lastFetchTime, state.cacheExpiryTime]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]); // Include isAuthenticated to prevent calls for unauthenticated users
 
   // Load single project
   const loadProject = useCallback(async (id: number): Promise<Project | null> => {
@@ -258,6 +267,12 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Refresh stats
   const refreshStats = useCallback(async () => {
+    // Don't fetch stats for unauthenticated users
+    if (!isAuthenticated) {
+      console.log('🔒 Skipping project stats fetch - user not authenticated');
+      return;
+    }
+
     try {
       const response = await projectsAPI.getProjectStats();
       if (response.success) {
@@ -266,7 +281,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } catch (err: any) {
       console.error('Load project stats error:', err);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   // Set selected project
   const setSelectedProject = useCallback((project: Project | null) => {
@@ -315,10 +330,12 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
   }, [state.projects]);
 
-  // Auto-load projects on mount
+  // Auto-load projects on mount only for authenticated users
   useEffect(() => {
-    loadProjects();
-  }, [loadProjects]);
+    if (isAuthenticated) {
+      loadProjects();
+    }
+  }, [isAuthenticated, loadProjects]);
 
   // Auto-refresh stats when projects change
   useEffect(() => {

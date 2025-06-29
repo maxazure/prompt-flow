@@ -46,7 +46,7 @@ export function validateCreateCategoryData(data: any): ValidationResult<CreateCa
 
   // 验证 scopeType
   if (!Object.values(CategoryScopeType).includes(data.scopeType)) {
-    errors.push('Invalid scope type. Must be personal, team, or public');
+    errors.push('Invalid scope type. Must be personal or team');
   } else {
     result.scopeType = data.scopeType;
   }
@@ -60,9 +60,6 @@ export function validateCreateCategoryData(data: any): ValidationResult<CreateCa
     }
   } else if (data.scopeType === CategoryScopeType.PERSONAL) {
     // 个人分类的 scopeId 由服务层设置，忽略客户端传递的值
-    result.scopeId = undefined;
-  } else if (data.scopeType === CategoryScopeType.PUBLIC) {
-    // 公开分类不需要 scopeId
     result.scopeId = undefined;
   }
 
